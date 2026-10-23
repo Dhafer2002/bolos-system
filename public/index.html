@@ -87,20 +87,27 @@
         .stat-label { color: #aaa; font-size: 16px; }
         .btn-pdf { background: #28a745; border: 1px solid #1e7e34; width: 100%; margin-top: 15px; padding: 12px; font-size: 18px; color: white; cursor: pointer; font-weight: bold; border-radius: 6px;}
         .btn-pdf:hover { filter: brightness(1.1); }
+
+        /* وضع الزائر: نفس الشكل بالضبط، بس بدون أزرار تحكم */
+        body.viewer .btn-row, body.viewer .staff-only { display: none !important; }
+        body.viewer .card:hover { transform: none; }
+        .conn-lost { position: fixed; bottom: 15px; left: 15px; background: var(--red); color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: 900; z-index: 100; display: none; }
     </style>
 </head>
-<body>
+<body class="viewer">
+    <div class="conn-lost" id="conn-lost">⚠️ انقطع الاتصال بالسيرفر... جاري إعادة المحاولة</div>
     <div class="sidebar">
         <div class="logo-area">
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
         </div>
         <button class="lang-btn" onclick="toggleLang()" id="btn-lang">🌐 Switch to English</button>
-        
+        <button class="lang-btn" onclick="staffLogin()" id="btn-login">🔐 دخول الموظفين</button>
+
         <button class="nav-btn active" onclick="nav('tables', this)" data-tr="nav_tables">🎛️ الميدان (الطاولات)</button>
-        <button class="nav-btn" onclick="nav('history', this)" data-tr="nav_history">📜 سجل النشاطات</button>
-        <button class="nav-btn" onclick="nav('waiting', this)" data-tr="nav_wait">⏳ قائمة الانتظار</button>
-        <button class="nav-btn" onclick="nav('analytics', this)" data-tr="nav_stats">📊 تقارير الإدارة</button>
-        <button class="nav-btn" onclick="nav('settings', this)" data-tr="nav_set">⚙️ الإعدادات</button>
+        <button class="nav-btn staff-only" onclick="nav('history', this)" data-tr="nav_history">📜 سجل النشاطات</button>
+        <button class="nav-btn staff-only" onclick="nav('waiting', this)" data-tr="nav_wait">⏳ قائمة الانتظار</button>
+        <button class="nav-btn staff-only" onclick="nav('analytics', this)" data-tr="nav_stats">📊 تقارير الإدارة</button>
+        <button class="nav-btn staff-only" onclick="nav('settings', this)" data-tr="nav_set">⚙️ الإعدادات</button>
         
         <div class="owner-tag" data-tr="owner">Developed & Owned by<br>Dhafer Mohammed</div>
     </div>
@@ -297,8 +304,20 @@
             alert("⚠️ انتبه!\nأنت فاتح الملف مباشرة. لازم تفتحه عن طريق localhost:3000 عشان الوقت والأنوار تشتغل.");
         }
 
+        // السيرفر هو المصدر الوحيد للحقيقة — الصفحة بس تعرض اللي يقوله
         let socket = null;
-        if (typeof io !== 'undefined') { socket = io(); }
+        let myRole = 'viewer';
+        let tableState = {};   // { 'pool-1': { status: 'idle'|'running'|'paused', mode, seconds } }
+        let frozenList = [];
+        let activityHistory = [];
+        let staffPin = '';
+        try { staffPin = localStorage.getItem('bolosPin') || ''; } catch(e) {}
+        if (typeof io !== 'undefined') { socket = io({ auth: { pin: staffPin } }); }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+        }
+        const getT = (type, num) => tableState[`${type}-${num}`] || { status: 'idle', mode: null, seconds: 0 };
 
         let currentLang = 'ar';
         const dict = {
@@ -313,7 +332,13 @@
                 stats_desc: 'هذه الإحصائيات تحسب عدد التذاكر وجلسات اللعب ووقت اللعب الإجمالي. يمكنك استخراج تقرير PDF رسمي لكل قسم.',
                 set_color: '🎨 تخصيص الألوان', col_blue: 'لون الواجهة:', col_red: 'لون التنبيه:', col_gold: 'لون التمييز:',
                 btn_theme: 'تبديل المظهر', btn_reset: '⚠️ إعادة تعيين ومسح البيانات', owner: 'Developed & Owned by<br>Dhafer Mohammed',
-                prompt_name: 'أدخل اسم الزبون لحفظ الرصيد:', ph_name: 'اسم الزبون...'
+                prompt_name: 'أدخل اسم الزبون لحفظ الرصيد:', ph_name: 'اسم الزبون...',
+                btn_login: '🔐 دخول الموظفين', btn_logout: '🚪 تسجيل خروج', prompt_pin: 'أدخل الرقم السري للموظفين:',
+                prompt_admin: 'كلمة مرور الإدارة:', no_history: 'لا توجد نشاطات مسجلة حتى الآن.', resume: 'استئناف', open_tag: 'مفتوح',
+                conn_lost: '⚠️ انقطع الاتصال بالسيرفر... جاري إعادة المحاولة', reset_done: 'تم مسح النظام!',
+                err_not_authorized: 'لازم تسجل دخول كموظف أولاً.', err_table_busy: 'الطاولة مشغولة، صفّرها أولاً.',
+                err_bad_password: 'كلمة المرور غلط.', err_invalid: 'طلب غير صالح.', err_server_error: 'صار خطأ في السيرفر.',
+                auth_wrong: 'الرقم السري غلط.', auth_locked: 'محاولات كثيرة غلط. انتظر 5 دقائق.'
             },
             'en': {
                 nav_tables: '🎛️ Tables', nav_history: '📜 Activity Log', nav_wait: '⏳ Waiting', nav_stats: '📊 Reports', nav_set: '⚙️ Settings',
@@ -326,7 +351,13 @@
                 stats_desc: 'These statistics track tickets, sessions, and total playtime. Export a PDF report for each section.',
                 set_color: '🎨 Colors', col_blue: 'Main Color:', col_red: 'Danger Color:', col_gold: 'Accent Color:',
                 btn_theme: 'Toggle Theme', btn_reset: '⚠️ Master Reset', owner: 'Developed & Owned by<br>Dhafer Mohammed',
-                prompt_name: 'Enter customer name to save time:', ph_name: 'Customer Name...'
+                prompt_name: 'Enter customer name to save time:', ph_name: 'Customer Name...',
+                btn_login: '🔐 Staff Login', btn_logout: '🚪 Log Out', prompt_pin: 'Enter staff PIN:',
+                prompt_admin: 'Admin password:', no_history: 'No activity recorded yet.', resume: 'Resume', open_tag: 'Open',
+                conn_lost: '⚠️ Connection lost... reconnecting', reset_done: 'System data cleared!',
+                err_not_authorized: 'Please log in as staff first.', err_table_busy: 'That table is busy — reset it first.',
+                err_bad_password: 'Wrong password.', err_invalid: 'Invalid request.', err_server_error: 'Server error.',
+                auth_wrong: 'Wrong PIN.', auth_locked: 'Too many wrong attempts. Wait 5 minutes.'
             }
         };
 
@@ -345,43 +376,38 @@
             };
         }
 
-        let activityHistory = [];
-        try { activityHistory = JSON.parse(localStorage.getItem('bolosHistory')) || []; } catch(e) { activityHistory = []; }
-
-        function logAction(actionType, type, num) {
-            let timeStr = new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-            let tableNameAr = dict['ar']['sec_'+type] + ' ' + num;
-            let tableNameEn = dict['en']['sec_'+type] + ' ' + num;
-            
-            let logMsgAr = "", logMsgEn = "", cssClass = "", icon = "";
-
-            if(actionType === 'START') { logMsgAr = `بدأ اللعب على ${tableNameAr}`; logMsgEn = `Started session on ${tableNameEn}`; cssClass = "log-start"; icon = "▶️"; } 
-            else if (actionType === 'STOP') { logMsgAr = `تم إنهاء/تصفير ${tableNameAr}`; logMsgEn = `Reset/Stopped ${tableNameEn}`; cssClass = "log-end"; icon = "⏹️"; } 
-            else if (actionType === 'END') { logMsgAr = `انتهى الوقت المخصص لـ ${tableNameAr}`; logMsgEn = `Time ended for ${tableNameEn}`; cssClass = "log-end"; icon = "⏰"; } 
-            else if (actionType === 'PAUSE') { logMsgAr = `تم إيقاف ${tableNameAr} مؤقتاً`; logMsgEn = `Paused ${tableNameEn}`; cssClass = "log-pause"; icon = "⏸️"; } 
-            else if (actionType === 'RESUME') { logMsgAr = `تم استئناف اللعب على ${tableNameAr}`; logMsgEn = `Resumed ${tableNameEn}`; cssClass = "log-start"; icon = "▶️"; }
-
-            activityHistory.unshift({ time: timeStr, msgAr: logMsgAr, msgEn: logMsgEn, cssClass: cssClass, icon: icon });
-            if (activityHistory.length > 50) activityHistory.pop();
-            
-            localStorage.setItem('bolosHistory', JSON.stringify(activityHistory));
-            renderHistory();
+        // سجل النشاطات يجي من السيرفر (نفس السجل على كل الأجهزة)
+        function describeLog(log) {
+            const table = `${dict[currentLang]['sec_' + log.type] || log.type} ${log.number}`;
+            const who = log.customer ? ` (${escapeHtml(log.customer)})` : '';
+            const ar = currentLang === 'ar';
+            switch (log.action) {
+                case 'START':  return { icon: '▶️', css: 'log-start', msg: ar ? `بدأ اللعب على ${table}` : `Started session on ${table}` };
+                case 'STOP':   return { icon: '⏹️', css: 'log-end',   msg: ar ? `تم إنهاء/تصفير ${table}` : `Reset/Stopped ${table}` };
+                case 'END':    return { icon: '⏰', css: 'log-end',   msg: ar ? `انتهى الوقت المخصص لـ ${table}` : `Time ended for ${table}` };
+                case 'PAUSE':  return { icon: '⏸️', css: 'log-pause', msg: ar ? `تم إيقاف ${table} مؤقتاً` : `Paused ${table}` };
+                case 'RESUME': return { icon: '▶️', css: 'log-start', msg: ar ? `تم استئناف اللعب على ${table}` : `Resumed ${table}` };
+                case 'FREEZE': return { icon: '❄️', css: 'log-pause', msg: ar ? `تم تجميد رصيد ${table}${who}` : `Froze balance on ${table}${who}` };
+                case 'RESUME_FROZEN': return { icon: '▶️', css: 'log-start', msg: ar ? `تم استرجاع رصيد مجمد على ${table}${who}` : `Resumed frozen balance on ${table}${who}` };
+                default: return { icon: '•', css: '', msg: `${log.action} ${table}` };
+            }
         }
 
         function renderHistory() {
             let container = document.getElementById('history-list');
-            container.innerHTML = "";
-            if(activityHistory.length === 0) {
-                container.innerHTML = `<p style="color: gray;">لا توجد نشاطات مسجلة حتى الآن.</p>`; return;
+            if (activityHistory.length === 0) {
+                container.innerHTML = `<p style="color: gray;">${dict[currentLang].no_history}</p>`; return;
             }
-            activityHistory.forEach(log => {
-                let msg = currentLang === 'ar' ? log.msgAr : log.msgEn;
-                container.innerHTML += `
-                <div class="log-item ${log.cssClass}">
-                    <div class="log-desc">${log.icon} ${msg}</div>
-                    <div class="log-time">${log.time}</div>
+            container.innerHTML = activityHistory.map(log => {
+                const d = describeLog(log);
+                // وقت الصالة دايماً (حتى لو أحد فاتح من دولة ثانية)
+                const time = new Date(log.ts).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Riyadh' });
+                return `
+                <div class="log-item ${d.css}">
+                    <div class="log-desc">${d.icon} ${d.msg}</div>
+                    <div class="log-time">${time}</div>
                 </div>`;
-            });
+            }).join('');
         }
 
         let ticketCounters = { 'bowl': 1, 'pool': 1, 'pingpong': 1, 'foosball': 1, 'ps': 1, 'baloot': 1, 'karaoke': 1 };
@@ -401,8 +427,7 @@
             if (action === 'STOP' || action === 'END') {
                 card.classList.add('card-blink-red');
                 setTimeout(() => {
-                    let currentTimer = document.getElementById(`timer-${type}-${num}`).innerText;
-                    if(currentTimer === "00:00") { 
+                    if (getT(type, num).status === 'idle') {
                         card.classList.remove('card-blink-red'); card.classList.add('card-solid-red');
                         setTimeout(() => { card.classList.remove('card-solid-red'); }, 10000);
                     }
@@ -440,14 +465,13 @@
             });
         }
 
+        // ملاحظة: هذا العداد مؤقت لين نبني التقارير من سجل السيرفر في المرحلة الجاية
         setInterval(() => {
+            if (myRole !== 'staff') return;
             let updated = false;
             tablesArray.forEach(cat => {
                 for(let i=1; i<=cat.count; i++) {
-                    let el = document.getElementById(`timer-${cat.type}-${i}`);
-                    let btn = document.getElementById(`btn-pause-${cat.type}-${i}`);
-                    let isPaused = btn && (btn.innerText.includes('استئناف') || btn.innerText.includes('Resume'));
-                    if (el && el.innerText !== "00:00" && !isPaused) {
+                    if (getT(cat.type, i).status === 'running') {
                         sysStats[cat.type].playedMinutes = (sysStats[cat.type].playedMinutes || 0) + 1;
                         updated = true;
                     }
@@ -522,8 +546,7 @@
             tablesArray.forEach(cat => {
                 let freeCount = 0;
                 for(let i=1; i<=cat.count; i++) {
-                    const el = document.getElementById(`timer-${cat.type}-${i}`);
-                    if(el && el.innerText === "00:00") freeCount++;
+                    if (getT(cat.type, i).status === 'idle') freeCount++;
                 }
                 const countSpan = document.getElementById(`free-${cat.type}`);
                 const dot = document.getElementById(`dot-${cat.type}`);
@@ -544,7 +567,9 @@
             
             document.querySelectorAll('[data-tr]').forEach(el => {
                 let key = el.getAttribute('data-tr');
-                if(dict[currentLang][key]) el.innerText = dict[currentLang][key];
+                if (!dict[currentLang][key]) return;
+                if (key === 'owner') el.innerHTML = dict[currentLang][key]; // فيه <br>
+                else el.innerText = dict[currentLang][key];
             });
             document.querySelectorAll('[data-tr-ph]').forEach(el => {
                 let key = el.getAttribute('data-tr-ph');
@@ -552,6 +577,10 @@
             });
             renderAnalytics();
             renderHistory();
+            renderTables();   // يرجّع نص زر الإيقاف/الاستئناف الصحيح بعد الترجمة
+            renderFrozen();
+            updateLoginBtn();
+            document.getElementById('conn-lost').innerText = dict[currentLang].conn_lost;
         }
 
         function updateColor(variable, color) { document.documentElement.style.setProperty(variable, color); }
@@ -562,49 +591,10 @@
             btn.classList.add('active');
         }
 
-        function resetPauseBtn(type, num) {
-            let btn = document.getElementById(`btn-pause-${type}-${num}`);
-            if(btn) { btn.innerText = dict[currentLang].btn_pause; btn.style.background = "#ffc107"; btn.style.color = "#000"; }
-        }
+        // ====================== لوحة الطاولات ======================
+        // الأزرار ترسل أوامر للسيرفر فقط، والشاشة تتحدث لما يرد السيرفر بالحالة الجديدة
 
-        function start(mins, type, num) { 
-            const el = document.getElementById(`timer-${type}-${num}`);
-            if(el) el.innerText = mins === 'open' ? "00:00" : (mins < 10 ? '0'+mins : mins) + ":00";
-            if(socket) socket.emit('startTable', { type, number: num, durationMinutes: mins }); 
-            resetPauseBtn(type, num);
-            playCardAlert(type, num, 'START');
-            logAction('START', type, num); 
-            updateAvailability();
-            
-            if(sysStats[type]) { sysStats[type].sessions++; saveStats(); }
-        }
-        
-        function stop(type, num) { 
-            const el = document.getElementById(`timer-${type}-${num}`);
-            if(el && el.innerText !== "00:00") { logAction('STOP', type, num); }
-            if(el) el.innerText = "00:00";
-            if(socket) socket.emit('stopTable', { type, number: num }); 
-            resetPauseBtn(type, num);
-            playCardAlert(type, num, 'STOP'); 
-            updateAvailability();
-        }
-
-        function togglePause(type, num) {
-            const el = document.getElementById(`timer-${type}-${num}`);
-            if (!el || el.innerText === "00:00") return;
-            let btn = document.getElementById(`btn-pause-${type}-${num}`);
-            if (btn.innerText.includes('مؤقت') || btn.innerText.includes('Pause')) {
-                if(socket) socket.emit('pauseTable', { type, number: num });
-                btn.innerText = dict[currentLang].btn_resume; btn.style.background = "#28a745"; btn.style.color = "white";
-                playCardAlert(type, num, 'PAUSE'); 
-                logAction('PAUSE', type, num);
-            } else {
-                if(socket) socket.emit('resumeTable', { type, number: num });
-                btn.innerText = dict[currentLang].btn_pause; btn.style.background = "#ffc107"; btn.style.color = "#000";
-                playCardAlert(type, num, 'RESUME'); 
-                logAction('RESUME', type, num);
-            }
-        }
+        const TYPE_ICONS = { pool: '🎱', pingpong: '🏓', foosball: '⚽', ps: '🎮', baloot: '🃏', karaoke: '🎤' };
 
         function formatTime(secs) {
             if (secs <= 0) return "00:00";
@@ -614,46 +604,136 @@
             return `${h > 0 ? h+':' : ''}${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        if(socket) {
-            socket.on('tick', (data) => {
-                const el = document.getElementById(`timer-${data.type}-${data.number}`);
-                if (el) {
-                    let oldTime = el.innerText;
-                    el.innerText = formatTime(data.secondsLeft);
-                    if (data.secondsLeft === 0 && oldTime !== "00:00") {
-                        playCardAlert(data.type, data.number, 'END');
-                        logAction('END', data.type, data.number); 
+        // يرسم كل الكروت من حالة السيرفر (يشتغل كل ثانية)
+        function renderTables() {
+            tablesArray.forEach(cat => {
+                for (let i = 1; i <= cat.count; i++) {
+                    const t = getT(cat.type, i);
+                    const el = document.getElementById(`timer-${cat.type}-${i}`);
+                    const btn = document.getElementById(`btn-pause-${cat.type}-${i}`);
+                    const card = document.getElementById(`card-${cat.type}-${i}`);
+                    if (el) el.innerText = formatTime(t.seconds);
+                    if (btn) {
+                        const paused = t.status === 'paused';
+                        btn.innerText = paused ? dict[currentLang].btn_resume : dict[currentLang].btn_pause;
+                        btn.style.background = paused ? '#28a745' : '#ffc107';
+                        btn.style.color = paused ? 'white' : '#000';
                     }
+                    if (card) card.classList.toggle('card-solid-orange', t.status === 'paused');
                 }
             });
-            socket.on('tickOpen', (data) => {
-                const el = document.getElementById(`timer-${data.type}-${data.number}`);
-                if (el) el.innerText = formatTime(data.secondsElapsed);
-            });
-            socket.on('systemResetDone', () => { alert("تم مسح النظام!"); location.reload(); });
         }
 
-        function freeze(type, num, nameAr) {
-            const el = document.getElementById(`timer-${type}-${num}`);
-            if (!el || el.innerText === "00:00") return;
-            let timeStr = el.innerText;
-            let custName = prompt(dict[currentLang].prompt_name);
-            if(!custName) return;
-            stop(type, num);
-            document.getElementById('no-frozen').style.display = 'none';
-            document.getElementById('frozen-list').innerHTML += `
+        function requireStaff() {
+            if (myRole === 'staff' && socket) return true;
+            alert(dict[currentLang].err_not_authorized);
+            return false;
+        }
+
+        function start(mins, type, num) {
+            if (!requireStaff()) return;
+            socket.emit('startTable', { type, number: num, durationMinutes: mins });
+            if (sysStats[type]) { sysStats[type].sessions++; saveStats(); } // مؤقت لين مرحلة التقارير
+        }
+
+        function stop(type, num) {
+            if (!requireStaff()) return;
+            socket.emit('stopTable', { type, number: num });
+        }
+
+        function togglePause(type, num) {
+            if (!requireStaff()) return;
+            const t = getT(type, num);
+            if (t.status === 'running') socket.emit('pauseTable', { type, number: num });
+            else if (t.status === 'paused') socket.emit('resumeTable', { type, number: num });
+        }
+
+        // تجميد: السيرفر يحفظ الوقت المتبقي (أو المنقضي للمفتوح) باسم الزبون
+        function freeze(type, num) {
+            if (!requireStaff()) return;
+            if (getT(type, num).status === 'idle') return;
+            const custName = prompt(dict[currentLang].prompt_name);
+            if (!custName || !custName.trim()) return;
+            socket.emit('freezeTable', { type, number: num, customer: custName.trim() });
+        }
+
+        function resumeFrozen(id) {
+            if (!requireStaff()) return;
+            socket.emit('resumeFrozen', { id });
+        }
+
+        function renderFrozen() {
+            const list = document.getElementById('frozen-list');
+            if (!frozenList.length) {
+                list.innerHTML = `<p style="color: gray;" id="no-frozen" data-tr="no_frozen">${dict[currentLang].no_frozen}</p>`;
+                return;
+            }
+            list.innerHTML = frozenList.map(f => {
+                const tableName = `${TYPE_ICONS[f.type] || ''} ${dict[currentLang]['sec_' + f.type] || f.type} ${f.number}`;
+                const timeLabel = formatTime(f.seconds) + (f.mode === 'open' ? ` (${dict[currentLang].open_tag})` : '');
+                return `
                 <div class="frozen-card">
-                    <span><strong style="font-size:20px;">${custName}</strong> - ${nameAr} <br><small style="color:#d4af37; font-size:16px;">${timeStr}</small></span>
-                    <button class="btn btn-gold" style="width:auto; padding:10px 20px;" onclick="resumeFrozen('${type}', ${num}, '${timeStr}', this)">${currentLang === 'ar' ? 'استئناف' : 'Resume'}</button>
-                </div>
-            `;
+                    <span><strong style="font-size:20px;">${escapeHtml(f.customer)}</strong> - ${tableName} <br><small style="color:#d4af37; font-size:16px;">${timeLabel}</small></span>
+                    <button class="btn btn-gold" style="width:auto; padding:10px 20px;" onclick="resumeFrozen(${Number(f.id)})">${dict[currentLang].resume}</button>
+                </div>`;
+            }).join('');
         }
 
-        function resumeFrozen(type, num, timeStr, btn) {
-            let parts = timeStr.split(':');
-            let secs = (parts.length === 3) ? parseInt(parts[0])*3600 + parseInt(parts[1])*60 + parseInt(parts[2]) : parseInt(parts[0])*60 + parseInt(parts[1]);
-            start(Math.ceil(secs / 60), type, num);
-            btn.parentElement.remove();
+        // ====================== تسجيل دخول الموظفين ======================
+        function updateLoginBtn() {
+            document.getElementById('btn-login').innerText = myRole === 'staff' ? dict[currentLang].btn_logout : dict[currentLang].btn_login;
+        }
+
+        function applyRole(role) {
+            myRole = role;
+            document.body.classList.toggle('viewer', role !== 'staff');
+            if (role !== 'staff') {
+                // الزائر يشوف صفحة الطاولات بس
+                const active = document.querySelector('.page.active');
+                if (active && active.id !== 'tables') nav('tables', document.querySelector('.nav-btn'));
+            }
+            updateLoginBtn();
+        }
+
+        function reconnectWithPin(pin) {
+            staffPin = pin;
+            try { pin ? localStorage.setItem('bolosPin', pin) : localStorage.removeItem('bolosPin'); } catch(e) {}
+            if (!socket) return;
+            socket.auth = { pin };
+            socket.disconnect().connect();
+        }
+
+        function staffLogin() {
+            if (myRole === 'staff') { reconnectWithPin(''); return; } // تسجيل خروج
+            const pin = prompt(dict[currentLang].prompt_pin);
+            if (pin) reconnectWithPin(pin.trim());
+        }
+
+        // ====================== الاتصال بالسيرفر ======================
+        if (socket) {
+            socket.on('role', applyRole);
+            socket.on('authFailed', (reason) => {
+                try { localStorage.removeItem('bolosPin'); } catch(e) {}
+                staffPin = '';
+                socket.auth = { pin: '' };
+                alert(reason === 'locked' ? dict[currentLang].auth_locked : dict[currentLang].auth_wrong);
+            });
+            socket.on('state', (snap) => {
+                tableState = snap.tables || {};
+                renderTables();
+                updateAvailability();
+            });
+            socket.on('tableEvent', (e) => playCardAlert(e.type, e.number, e.action));
+            socket.on('frozen', (list) => { frozenList = list || []; renderFrozen(); });
+            socket.on('activity', (list) => { activityHistory = list || []; renderHistory(); });
+            socket.on('actionError', (code) => alert(dict[currentLang]['err_' + code] || code));
+            socket.on('systemResetDone', () => {
+                try { localStorage.removeItem('bolosStats'); localStorage.removeItem('bolosHistory'); } catch(e) {}
+                alert(dict[currentLang].reset_done);
+                location.reload();
+            });
+            socket.on('connect', () => { document.getElementById('conn-lost').style.display = 'none'; });
+            socket.on('disconnect', () => { document.getElementById('conn-lost').style.display = 'block'; });
         }
 
         function checkBowling() { document.getElementById('bowling-options').style.display = document.getElementById('wait-game').value === 'bowl' ? 'flex' : 'none'; }
@@ -676,7 +756,7 @@
             document.getElementById('wait-list').innerHTML += `
                 <div class="wait-ticket">
                     <div class="ticket-info">
-                        <span class="ticket-name">${name}</span>
+                        <span class="ticket-name">${escapeHtml(name)}</span>
                         <div style="display:flex; gap:10px; align-items:center; margin-top:5px;">
                             <span class="ticket-number">${currentLang === 'ar' ? 'رقم' : '#'} ${ticketNum}</span>
                             <span class="ticket-game">${details}</span>
@@ -693,20 +773,19 @@
             selectedBowlingNum = "";
         }
 
+        // كلمة المرور تتفحص في السيرفر فقط — ما تنكتب في الصفحة
         function masterReset() {
-            const pass = prompt(currentLang === 'ar' ? "الرقم السري (1234):" : "Password (1234):");
-            if (pass === "1234") {
-                localStorage.removeItem('bolosStats'); 
-                localStorage.removeItem('bolosHistory'); 
-                if(socket) socket.emit('resetData', { password: pass });
-                alert("تم!"); location.reload();
-            }
+            if (!requireStaff()) return;
+            const pass = prompt(dict[currentLang].prompt_admin);
+            if (pass) socket.emit('resetData', { password: pass });
         }
 
         // تشغيل كل شيء بمجرد فتح الصفحة مباشرة
-        renderAnalytics(); 
-        updateAvailability(); 
+        renderAnalytics();
+        renderTables();
+        updateAvailability();
         renderHistory();
+        updateLoginBtn();
     </script>
 </body>
 </html>
