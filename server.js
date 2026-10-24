@@ -39,7 +39,7 @@ if (!IFTTT_KEY) console.warn('⚠️  IFTTT_KEY is not set — lights are disabl
 if (!ADMIN_PASSWORD) console.warn('⚠️  ADMIN_PASSWORD is not set — master reset is disabled.');
 
 // الطاولات المسموحة فقط (لازم تطابق الكروت في الصفحة)
-const TABLE_LAYOUT = { pool: 5, pingpong: 2, foosball: 2, ps: 2, baloot: 2, karaoke: 1 };
+const TABLE_LAYOUT = { pool: 5, pingpong: 2, foosball: 3, ps: 2, baloot: 2, karaoke: 1 };
 const MAX_DURATION_MINUTES = 12 * 60; // أطول مدة مسموحة: 12 ساعة
 const isValidDuration = (m) => Number.isInteger(m) && m >= 1 && m <= MAX_DURATION_MINUTES;
 const ACTIVITY_LIMIT = 50;
@@ -216,8 +216,8 @@ function addActivity(state, action, type, number, extra = {}) {
     if (state.activity.length > ACTIVITY_LIMIT) state.activity.length = ACTIVITY_LIMIT;
 }
 
-function addEvent(state, action, type, number) {
-    state.events.unshift({ id: state.nextEventId++, ts: Date.now(), action, type, number });
+function addEvent(state, action, type, number, extra = {}) {
+    state.events.unshift({ id: state.nextEventId++, ts: Date.now(), action, type, number, ...extra });
     if (state.events.length > EVENTS_LIMIT) state.events.length = EVENTS_LIMIT;
 }
 
@@ -350,6 +350,34 @@ const actions = {
         t.bookedMinutes = (t.bookedMinutes || 0) + mins;
         addActivity(state, 'EXTEND', t.type, t.number, { minutes: mins });
         addEvent(state, 'EXTEND', t.type, t.number);
+    },
+
+    // نقل: الوقت المتبقي (أو المنقضي) ينتقل لطاولة فاضية من نفس اللعبة
+    moveTable(state, fx, now, data) {
+        const from = getTable(state, data);
+        const to = getTable(state, { type: data.type, number: data.toNumber });
+        if (!from || !to || from === to || from.status === 'idle') return { error: 'invalid' };
+        if (to.status !== 'idle') return { error: 'table_busy' };
+        const { type, mode, status } = from;
+        const running = status === 'running';
+        const remainingMs = mode === 'timed' ? (running ? from.endTime - now : from.remainingMs) : 0;
+        const elapsedMs = mode === 'open' ? (running ? now - from.startTime : from.elapsedMs) : 0;
+        if (mode === 'timed' && remainingMs <= 0) return { error: 'invalid' };
+        finishSession(state, fx, from, 'MOVE', now);
+        const target = state.tables[tableKey(type, to.number)];
+        beginSession(target, mode === 'open'
+            ? { mode: 'open', elapsedMs, source: 'move' }
+            : { mode: 'timed', durationMs: remainingMs, source: 'move' }, now);
+        if (!running) {
+            if (mode === 'timed') { target.remainingMs = remainingMs; target.endTime = null; }
+            else { target.elapsedMs = elapsedMs; target.startTime = null; }
+            target.status = 'paused';
+            target.pausedAt = now;
+        }
+        queueLights(state, fx, type, from.number, 'STOP');
+        queueLights(state, fx, type, to.number, 'ON');
+        addActivity(state, 'MOVE', type, from.number, { toNumber: to.number });
+        addEvent(state, 'MOVE', type, from.number, { toNumber: to.number });
     },
 
     // تجميد: يوقف الطاولة ويحفظ الوقت باسم الزبون
