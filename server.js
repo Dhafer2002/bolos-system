@@ -179,6 +179,8 @@ async function runLights({ type, number, action, id }) {
 
     if (action === 'ON') {
         await sendAction(type, number, 'ON');
+    } else if (action === 'OFF') {
+        await sendAction(type, number, 'OFF');
     } else if (action === 'PAUSE') {
         // ترمش شوي وتظل شغالة
         await sendAction(type, number, 'OFF'); await delay(2000);
@@ -378,6 +380,16 @@ const actions = {
         queueLights(state, fx, type, to.number, 'ON');
         addActivity(state, 'MOVE', type, from.number, { toNumber: to.number });
         addEvent(state, 'MOVE', type, from.number, { toNumber: to.number });
+    },
+
+    // تشغيل/إطفاء اللمبة يدوياً — ما يأثر على العداد
+    setLight(state, fx, now, data) {
+        const t = getTable(state, data);
+        if (!t || typeof data.on !== 'boolean') return { error: 'invalid' };
+        const action = data.on ? 'LIGHT_ON' : 'LIGHT_OFF';
+        queueLights(state, fx, t.type, t.number, data.on ? 'ON' : 'OFF');
+        addActivity(state, action, t.type, t.number);
+        addEvent(state, action, t.type, t.number);
     },
 
     // تجميد: يوقف الطاولة ويحفظ الوقت باسم الزبون
