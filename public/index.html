@@ -297,27 +297,34 @@
     <!-- قالب الـ PDF -->
     <div id="pdf-template" style="display: none;"></div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
         // تنبيه ذكي وحماية من فتح الملف بالغلط
         if (window.location.protocol === 'file:') {
             alert("⚠️ انتبه!\nأنت فاتح الملف مباشرة. لازم تفتحه عن طريق localhost:3000 عشان الوقت والأنوار تشتغل.");
         }
 
-        // السيرفر هو المصدر الوحيد للحقيقة — الصفحة بس تعرض اللي يقوله
-        let socket = null;
+        // السيرفر هو المصدر الوحيد للحقيقة — الصفحة تسأله كل ثانيتين وتعرض اللي يقوله
+        const POLL_MS = 2000;
         let myRole = 'viewer';
         let tableState = {};   // { 'pool-1': { status: 'idle'|'running'|'paused', mode, seconds } }
+        let stateAt = Date.now(); // متى وصلت الحالة — عشان العداد يمشي بين كل سؤال والثاني
         let frozenList = [];
         let activityHistory = [];
-        let staffPin = '';
-        try { staffPin = localStorage.getItem('bolosPin') || ''; } catch(e) {}
-        if (typeof io !== 'undefined') { socket = io({ auth: { pin: staffPin } }); }
+        let lastEventId = null;
+        let lastResetCount = null;
+        let staffToken = '';
+        try { localStorage.removeItem('bolosPin'); staffToken = localStorage.getItem('bolosToken') || ''; } catch(e) {}
 
         function escapeHtml(s) {
             return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
         }
-        const getT = (type, num) => tableState[`${type}-${num}`] || { status: 'idle', mode: null, seconds: 0 };
+        const getT = (type, num) => {
+            const t = tableState[`${type}-${num}`];
+            if (!t) return { status: 'idle', mode: null, seconds: 0 };
+            if (t.status !== 'running') return t;
+            const passed = Math.floor((Date.now() - stateAt) / 1000);
+            return { ...t, seconds: t.mode === 'timed' ? Math.max(0, t.seconds - passed) : t.seconds + passed };
+        };
 
         let currentLang = 'ar';
         const dict = {
@@ -625,27 +632,27 @@
         }
 
         function requireStaff() {
-            if (myRole === 'staff' && socket) return true;
+            if (myRole === 'staff') return true;
             alert(dict[currentLang].err_not_authorized);
             return false;
         }
 
         function start(mins, type, num) {
             if (!requireStaff()) return;
-            socket.emit('startTable', { type, number: num, durationMinutes: mins });
+            sendAction('startTable', { type, number: num, durationMinutes: mins });
             if (sysStats[type]) { sysStats[type].sessions++; saveStats(); } // مؤقت لين مرحلة التقارير
         }
 
         function stop(type, num) {
             if (!requireStaff()) return;
-            socket.emit('stopTable', { type, number: num });
+            sendAction('stopTable', { type, number: num });
         }
 
         function togglePause(type, num) {
             if (!requireStaff()) return;
             const t = getT(type, num);
-            if (t.status === 'running') socket.emit('pauseTable', { type, number: num });
-            else if (t.status === 'paused') socket.emit('resumeTable', { type, number: num });
+            if (t.status === 'running') sendAction('pauseTable', { type, number: num });
+            else if (t.status === 'paused') sendAction('resumeTable', { type, number: num });
         }
 
         // تجميد: السيرفر يحفظ الوقت المتبقي (أو المنقضي للمفتوح) باسم الزبون
@@ -654,12 +661,12 @@
             if (getT(type, num).status === 'idle') return;
             const custName = prompt(dict[currentLang].prompt_name);
             if (!custName || !custName.trim()) return;
-            socket.emit('freezeTable', { type, number: num, customer: custName.trim() });
+            sendAction('freezeTable', { type, number: num, customer: custName.trim() });
         }
 
         function resumeFrozen(id) {
             if (!requireStaff()) return;
-            socket.emit('resumeFrozen', { id });
+            sendAction('resumeFrozen', { id });
         }
 
         function renderFrozen() {
@@ -695,46 +702,94 @@
             updateLoginBtn();
         }
 
-        function reconnectWithPin(pin) {
-            staffPin = pin;
-            try { pin ? localStorage.setItem('bolosPin', pin) : localStorage.removeItem('bolosPin'); } catch(e) {}
-            if (!socket) return;
-            socket.auth = { pin };
-            socket.disconnect().connect();
+        function setToken(token) {
+            staffToken = token;
+            try { token ? localStorage.setItem('bolosToken', token) : localStorage.removeItem('bolosToken'); } catch(e) {}
         }
 
-        function staffLogin() {
-            if (myRole === 'staff') { reconnectWithPin(''); return; } // تسجيل خروج
+        async function staffLogin() {
+            if (myRole === 'staff') { setToken(''); applyRole('viewer'); poll(); return; } // تسجيل خروج
             const pin = prompt(dict[currentLang].prompt_pin);
-            if (pin) reconnectWithPin(pin.trim());
+            if (!pin || !pin.trim()) return;
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pin.trim() })
+                });
+                const body = await res.json().catch(() => ({}));
+                if (!res.ok) { alert(body.error === 'locked' ? dict[currentLang].auth_locked : dict[currentLang].auth_wrong); return; }
+                setToken(body.token);
+                poll();
+            } catch (e) { alert(dict[currentLang].conn_lost); }
         }
 
         // ====================== الاتصال بالسيرفر ======================
-        if (socket) {
-            socket.on('role', applyRole);
-            socket.on('authFailed', (reason) => {
-                try { localStorage.removeItem('bolosPin'); } catch(e) {}
-                staffPin = '';
-                socket.auth = { pin: '' };
-                alert(reason === 'locked' ? dict[currentLang].auth_locked : dict[currentLang].auth_wrong);
-            });
-            socket.on('state', (snap) => {
-                tableState = snap.tables || {};
-                renderTables();
-                updateAvailability();
-            });
-            socket.on('tableEvent', (e) => playCardAlert(e.type, e.number, e.action));
-            socket.on('frozen', (list) => { frozenList = list || []; renderFrozen(); });
-            socket.on('activity', (list) => { activityHistory = list || []; renderHistory(); });
-            socket.on('actionError', (code) => alert(dict[currentLang]['err_' + code] || code));
-            socket.on('systemResetDone', () => {
+        const authHeaders = () => staffToken ? { 'Authorization': 'Bearer ' + staffToken } : {};
+
+        function setConnected(ok) { document.getElementById('conn-lost').style.display = ok ? 'none' : 'block'; }
+
+        function applyState(snap) {
+            // التوكن انتهى أو الرقم السري تغيّر — نرجع زائر
+            if (staffToken && snap.role !== 'staff') setToken('');
+            if (snap.role !== myRole) applyRole(snap.role);
+
+            tableState = snap.tables || {};
+            stateAt = Date.now();
+            renderTables();
+            updateAvailability();
+
+            // رمش الكروت لكل حركة جديدة (أول تحميل: بس نحفظ وين وصلنا)
+            const events = snap.events || [];
+            if (lastEventId !== null) {
+                events.filter(e => e.id > lastEventId).reverse().forEach(e => playCardAlert(e.type, e.number, e.action));
+            }
+            lastEventId = events.length ? events[0].id : (lastEventId || 0);
+
+            if (lastResetCount !== null && snap.resetCount !== lastResetCount) {
                 try { localStorage.removeItem('bolosStats'); localStorage.removeItem('bolosHistory'); } catch(e) {}
                 alert(dict[currentLang].reset_done);
                 location.reload();
-            });
-            socket.on('connect', () => { document.getElementById('conn-lost').style.display = 'none'; });
-            socket.on('disconnect', () => { document.getElementById('conn-lost').style.display = 'block'; });
+                return;
+            }
+            lastResetCount = snap.resetCount;
+
+            if (snap.role === 'staff') {
+                frozenList = snap.frozen || []; renderFrozen();
+                activityHistory = snap.activity || []; renderHistory();
+            }
         }
+
+        let pollTimer = null;
+        async function poll() {
+            clearTimeout(pollTimer);
+            try {
+                const res = await fetch('/api/state', { headers: authHeaders(), cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                applyState(await res.json());
+                setConnected(true);
+            } catch (e) { setConnected(false); }
+            pollTimer = setTimeout(poll, POLL_MS);
+        }
+
+        async function sendAction(action, data) {
+            try {
+                const res = await fetch('/api/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify({ action, ...data })
+                });
+                const body = await res.json().catch(() => ({}));
+                if (body.state) applyState(body.state);
+                if (!res.ok) {
+                    if (res.status === 401) { setToken(''); applyRole('viewer'); }
+                    alert(dict[currentLang]['err_' + body.error] || body.error || dict[currentLang].err_server_error);
+                }
+                setConnected(true);
+            } catch (e) { setConnected(false); alert(dict[currentLang].conn_lost); }
+        }
+
+        setInterval(renderTables, 500);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
 
         function checkBowling() { document.getElementById('bowling-options').style.display = document.getElementById('wait-game').value === 'bowl' ? 'flex' : 'none'; }
         function setNum(num, btn) { document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedBowlingNum = num; }
@@ -777,7 +832,7 @@
         function masterReset() {
             if (!requireStaff()) return;
             const pass = prompt(dict[currentLang].prompt_admin);
-            if (pass) socket.emit('resetData', { password: pass });
+            if (pass) sendAction('resetData', { password: pass });
         }
 
         // تشغيل كل شيء بمجرد فتح الصفحة مباشرة
@@ -786,6 +841,7 @@
         updateAvailability();
         renderHistory();
         updateLoginBtn();
+        poll();
     </script>
 </body>
 </html>

@@ -11,7 +11,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "socket.io": "^4.8.3"
+    "@vercel/functions": "^3.10.3",
+    "express": "^5.2.1"
   }
 }
