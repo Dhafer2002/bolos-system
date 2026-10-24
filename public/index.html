@@ -59,6 +59,7 @@
         .btn-red { background: var(--red); border: 1px solid #a00000; }
         .btn-pause { background: #ffc107; color: #000; border: 1px solid #d39e00; }
         .btn-freeze { background: #17a2b8; border: 1px solid #138496; }
+        .btn-custom { padding: 12px 4px; }
 
         .settings-box { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 2px solid var(--blue); margin-bottom: 20px; max-width: 600px; backdrop-filter: blur(5px);}
         input, select { width: 100%; background: rgba(0,0,0,0.6); border: 2px solid var(--gold); color: white; padding: 12px; border-radius: 6px; box-sizing: border-box; margin-bottom: 15px; font-size: 18px; font-weight: 700; font-family: 'Cairo', sans-serif;}
@@ -134,27 +135,27 @@
                 <div class="grid">
                     <div class="card" id="card-pool-1">
                         <h3>🎱 <span data-tr="opt_pool">بلياردو</span> 1</h3><div class="timer" id="timer-pool-1" data-type="pool">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'pool', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pool', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pool', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pool', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pool-1" onclick="togglePause('pool', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pool', 1, '🎱 بلياردو 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-pool-2">
                         <h3>🎱 <span data-tr="opt_pool">بلياردو</span> 2</h3><div class="timer" id="timer-pool-2" data-type="pool">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 2)">60</button><button class="btn btn-gold" onclick="start('open', 'pool', 2)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 2)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pool', 2)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pool', 2)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pool', 2)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pool-2" onclick="togglePause('pool', 2)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pool', 2, '🎱 بلياردو 2')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-pool-3">
                         <h3>🎱 <span data-tr="opt_pool">بلياردو</span> 3</h3><div class="timer" id="timer-pool-3" data-type="pool">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 3)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 3)">60</button><button class="btn btn-gold" onclick="start('open', 'pool', 3)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 3)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 3)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pool', 3)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pool', 3)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pool', 3)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pool-3" onclick="togglePause('pool', 3)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pool', 3, '🎱 بلياردو 3')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-pool-4">
                         <h3>🎱 <span data-tr="opt_pool">بلياردو</span> 4</h3><div class="timer" id="timer-pool-4" data-type="pool">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 4)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 4)">60</button><button class="btn btn-gold" onclick="start('open', 'pool', 4)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 4)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 4)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pool', 4)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pool', 4)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pool', 4)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pool-4" onclick="togglePause('pool', 4)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pool', 4, '🎱 بلياردو 4')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-pool-5">
                         <h3>🎱 <span data-tr="opt_pool">بلياردو</span> 5</h3><div class="timer" id="timer-pool-5" data-type="pool">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 5)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 5)">60</button><button class="btn btn-gold" onclick="start('open', 'pool', 5)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pool', 5)">30</button><button class="btn btn-blue" onclick="start(60, 'pool', 5)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pool', 5)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pool', 5)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pool', 5)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pool-5" onclick="togglePause('pool', 5)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pool', 5, '🎱 بلياردو 5')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -164,12 +165,12 @@
                 <div class="grid">
                     <div class="card" id="card-pingpong-1">
                         <h3>🏓 <span data-tr="opt_ping">تنس</span> 1</h3><div class="timer" id="timer-pingpong-1" data-type="pingpong">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pingpong', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'pingpong', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'pingpong', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pingpong', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'pingpong', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pingpong', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pingpong', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pingpong', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pingpong-1" onclick="togglePause('pingpong', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pingpong', 1, '🏓 تنس 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-pingpong-2">
                         <h3>🏓 <span data-tr="opt_ping">تنس</span> 2</h3><div class="timer" id="timer-pingpong-2" data-type="pingpong">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pingpong', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'pingpong', 2)">60</button><button class="btn btn-gold" onclick="start('open', 'pingpong', 2)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'pingpong', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'pingpong', 2)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('pingpong', 2)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'pingpong', 2)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('pingpong', 2)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-pingpong-2" onclick="togglePause('pingpong', 2)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('pingpong', 2, '🏓 تنس 2')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -179,12 +180,12 @@
                 <div class="grid">
                     <div class="card" id="card-foosball-1">
                         <h3>⚽ <span data-tr="opt_foos">فرفيرة</span> 1</h3><div class="timer" id="timer-foosball-1" data-type="foosball">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'foosball', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'foosball', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'foosball', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'foosball', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'foosball', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('foosball', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'foosball', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('foosball', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-foosball-1" onclick="togglePause('foosball', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('foosball', 1, '⚽ فرفيرة 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-foosball-2">
                         <h3>⚽ <span data-tr="opt_foos">فرفيرة</span> 2</h3><div class="timer" id="timer-foosball-2" data-type="foosball">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'foosball', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'foosball', 2)">60</button><button class="btn btn-gold" onclick="start('open', 'foosball', 2)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'foosball', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'foosball', 2)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('foosball', 2)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'foosball', 2)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('foosball', 2)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-foosball-2" onclick="togglePause('foosball', 2)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('foosball', 2, '⚽ فرفيرة 2')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -194,12 +195,12 @@
                 <div class="grid">
                     <div class="card" id="card-ps-1">
                         <h3>🎮 <span data-tr="opt_ps">بلايستيشن</span> 1</h3><div class="timer" id="timer-ps-1" data-type="ps">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'ps', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'ps', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'ps', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'ps', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'ps', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('ps', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'ps', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('ps', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-ps-1" onclick="togglePause('ps', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('ps', 1, '🎮 بلايستيشن 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-ps-2">
                         <h3>🎮 <span data-tr="opt_ps">بلايستيشن</span> 2</h3><div class="timer" id="timer-ps-2" data-type="ps">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'ps', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'ps', 2)">60</button><button class="btn btn-gold" onclick="start('open', 'ps', 2)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'ps', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'ps', 2)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('ps', 2)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'ps', 2)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('ps', 2)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-ps-2" onclick="togglePause('ps', 2)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('ps', 2, '🎮 بلايستيشن 2')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -209,12 +210,12 @@
                 <div class="grid">
                     <div class="card" id="card-baloot-1">
                         <h3>🃏 <span data-tr="opt_baloot">بلوت</span> 1</h3><div class="timer" id="timer-baloot-1" data-type="baloot">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'baloot', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'baloot', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'baloot', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'baloot', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'baloot', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('baloot', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'baloot', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('baloot', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-baloot-1" onclick="togglePause('baloot', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('baloot', 1, '🃏 بلوت 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                     <div class="card" id="card-baloot-2">
                         <h3>🃏 <span data-tr="opt_baloot">بلوت</span> 2</h3><div class="timer" id="timer-baloot-2" data-type="baloot">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'baloot', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'baloot', 2)">60</button><button class="btn btn-gold" onclick="start('open', 'baloot', 2)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'baloot', 2)">30</button><button class="btn btn-blue" onclick="start(60, 'baloot', 2)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('baloot', 2)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'baloot', 2)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('baloot', 2)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-baloot-2" onclick="togglePause('baloot', 2)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('baloot', 2, '🃏 بلوت 2')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -224,7 +225,7 @@
                 <div class="grid">
                     <div class="card" id="card-karaoke-1">
                         <h3>🎤 <span data-tr="opt_kar">كاريوكي</span> 1</h3><div class="timer" id="timer-karaoke-1" data-type="karaoke">00:00</div>
-                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'karaoke', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'karaoke', 1)">60</button><button class="btn btn-gold" onclick="start('open', 'karaoke', 1)" data-tr="btn_open">مفتوح</button></div>
+                        <div class="btn-row"><button class="btn btn-blue" onclick="start(30, 'karaoke', 1)">30</button><button class="btn btn-blue" onclick="start(60, 'karaoke', 1)">60</button><button class="btn btn-blue btn-custom" onclick="startCustom('karaoke', 1)" data-tr="btn_custom">مخصص</button><button class="btn btn-gold" onclick="start('open', 'karaoke', 1)" data-tr="btn_open">مفتوح</button></div>
                         <div class="btn-row"><button class="btn btn-red" onclick="stop('karaoke', 1)" data-tr="btn_stop">تصفير ⏹️</button><button class="btn btn-pause" id="btn-pause-karaoke-1" onclick="togglePause('karaoke', 1)" data-tr="btn_pause">مؤقت ⏸️</button><button class="btn btn-freeze" onclick="freeze('karaoke', 1, '🎤 كاريوكي 1')" data-tr="btn_freeze">تجميد ❄️</button></div>
                     </div>
                 </div>
@@ -334,6 +335,9 @@
                 history_desc: 'يتم تسجيل أحدث 50 حركة تمت على الطاولات هنا لمتابعة سير العمل.',
                 sec_pool: 'بلياردو', sec_pingpong: 'تنس طاولة', sec_foosball: 'فرفيرة', sec_ps: 'بلايستيشن', sec_baloot: 'بلوت', sec_karaoke: 'كاريوكي',
                 btn_open: 'مفتوح', btn_stop: 'تصفير ⏹️', btn_pause: 'مؤقت ⏸️', btn_resume: 'استئناف ▶️', btn_freeze: 'تجميد ❄️',
+                btn_custom: 'مخصص',
+                prompt_custom: 'كم المدة؟\nاكتب بالدقائق (مثلاً 90) أو بالساعات (مثلاً 1:30)',
+                err_custom: 'المدة غير صحيحة. اكتب مثلاً 90 أو 1:30 (من دقيقة إلى 12 ساعة).',
                 top_avail: '🟢 الشواغر:', opt_pool: 'بلياردو', opt_ping: 'تنس', opt_foos: 'فرفيرة', opt_ps: 'بلايستيشن', opt_baloot: 'بلوت', opt_kar: 'كاريوكي', opt_bowl: 'بولينج',
                 add_wait: 'إصدار تذكرة انتظار', btn_add: '➕ إصدار تذكرة', title_frozen: '❄️ الأرصدة المجمدة', title_wait_list: '⏳ التذاكر الحالية', no_frozen: 'لا توجد أرصدة مجمدة حالياً.',
                 stats_desc: 'هذه الإحصائيات تحسب عدد التذاكر وجلسات اللعب ووقت اللعب الإجمالي. يمكنك استخراج تقرير PDF رسمي لكل قسم.',
@@ -353,6 +357,9 @@
                 history_desc: 'The latest 50 table actions are logged here to monitor workflow.',
                 sec_pool: 'Pool', sec_pingpong: 'Ping Pong', sec_foosball: 'Foosball', sec_ps: 'PlayStation', sec_baloot: 'Baloot', sec_karaoke: 'Karaoke',
                 btn_open: 'Open', btn_stop: 'Reset ⏹️', btn_pause: 'Pause ⏸️', btn_resume: 'Resume ▶️', btn_freeze: 'Freeze ❄️',
+                btn_custom: 'Custom',
+                prompt_custom: 'How long?\nType minutes (e.g. 90) or hours:minutes (e.g. 1:30)',
+                err_custom: 'Invalid time. Type e.g. 90 or 1:30 (1 minute to 12 hours).',
                 top_avail: '🟢 Available:', opt_pool: 'Pool', opt_ping: 'PingPong', opt_foos: 'Foosball', opt_ps: 'PS', opt_baloot: 'Baloot', opt_kar: 'Karaoke', opt_bowl: 'Bowling',
                 add_wait: 'Issue Ticket', btn_add: '➕ Issue Ticket', title_frozen: '❄️ Frozen Timers', title_wait_list: '⏳ Current Tickets', no_frozen: 'No frozen timers.',
                 stats_desc: 'These statistics track tickets, sessions, and total playtime. Export a PDF report for each section.',
@@ -641,6 +648,28 @@
             if (!requireStaff()) return;
             sendAction('startTable', { type, number: num, durationMinutes: mins });
             if (sysStats[type]) { sysStats[type].sessions++; saveStats(); } // مؤقت لين مرحلة التقارير
+        }
+
+        // 90 = minutes, 1:30 = hours:minutes, 1.5 = hours. Accepts Arabic digits too.
+        function parseDuration(input) {
+            let s = String(input || '').trim()
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                .replace(/[٫,]/g, '.').replace(/[：؛]/g, ':').replace(/\s+/g, '');
+            let mins = NaN, m;
+            if ((m = s.match(/^(\d{1,2}):(\d{1,2})$/))) mins = Number(m[1]) * 60 + Number(m[2]);
+            else if (/^\d+$/.test(s)) mins = Number(s);
+            else if (/^\d*\.\d+$/.test(s)) mins = Math.round(Number(s) * 60);
+            return Number.isInteger(mins) && mins >= 1 && mins <= 720 ? mins : null;
+        }
+
+        function startCustom(type, num) {
+            if (!requireStaff()) return;
+            const input = prompt(dict[currentLang].prompt_custom);
+            if (input === null) return;
+            const mins = parseDuration(input);
+            if (!mins) { alert(dict[currentLang].err_custom); return; }
+            start(mins, type, num);
         }
 
         function stop(type, num) {

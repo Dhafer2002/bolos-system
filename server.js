@@ -40,7 +40,8 @@ if (!ADMIN_PASSWORD) console.warn('⚠️  ADMIN_PASSWORD is not set — master 
 
 // الطاولات المسموحة فقط (لازم تطابق الكروت في الصفحة)
 const TABLE_LAYOUT = { pool: 5, pingpong: 2, foosball: 2, ps: 2, baloot: 2, karaoke: 1 };
-const ALLOWED_DURATIONS = [30, 60]; // بالدقائق
+const MAX_DURATION_MINUTES = 12 * 60; // أطول مدة مسموحة: 12 ساعة
+const isValidDuration = (m) => Number.isInteger(m) && m >= 1 && m <= MAX_DURATION_MINUTES;
 const ACTIVITY_LIMIT = 50;
 const EVENTS_LIMIT = 30;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // دخول الموظف يبقى 30 يوم
@@ -279,7 +280,7 @@ const actions = {
         if (!t) return { error: 'invalid' };
         const mins = data.durationMinutes;
         const isOpen = mins === 'open';
-        if (!isOpen && !ALLOWED_DURATIONS.includes(Number(mins))) return { error: 'invalid' };
+        if (!isOpen && !isValidDuration(Number(mins))) return { error: 'invalid' };
 
         if (t.status !== 'idle') finishSession(state, fx, t, 'RESTART', now); // الجلسة القديمة تنحفظ قبل ما تبدأ الجديدة
         const fresh = state.tables[tableKey(t.type, t.number)];
