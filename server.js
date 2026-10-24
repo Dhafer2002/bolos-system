@@ -43,6 +43,10 @@ const TABLE_LAYOUT = { pool: 5, pingpong: 2, foosball: 3, ps: 2, baloot: 2, kara
 const MAX_DURATION_MINUTES = 12 * 60; // أطول مدة مسموحة: 12 ساعة
 const isValidDuration = (m) => Number.isInteger(m) && m >= 1 && m <= MAX_DURATION_MINUTES;
 const ACTIVITY_PER_GAME = 20; // كل لعبة تحتفظ بآخر 20 حركة لها
+// قائمة الانتظار: البولينج + كل ألعاب الطاولات
+const WAIT_GAMES = ['bowl', ...Object.keys(TABLE_LAYOUT)];
+const WAITLIST_LIMIT = 100;
+const riyadhDay = (ms) => new Date(ms + 3 * 3600 * 1000).toISOString().slice(0, 10); // أرقام التذاكر ترجع 1 كل يوم
 const activityBucket = (a) => (a.action === 'FREEZE' || a.action === 'RESUME_FROZEN') ? 'general' : a.type;
 const EVENTS_LIMIT = 30;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // دخول الموظف يبقى 30 يوم
@@ -85,6 +89,10 @@ function normalize(saved) {
         nextEventId: saved.nextEventId || 1,
         nextLightId: saved.nextLightId || 1,
         resetCount: saved.resetCount || 0,
+        waitlist: Array.isArray(saved.waitlist) ? saved.waitlist : [],
+        ticketDay: saved.ticketDay || '',
+        ticketCounters: saved.ticketCounters || {},
+        nextTicketId: saved.nextTicketId || 1,
     };
     for (const [type, count] of Object.entries(TABLE_LAYOUT)) {
         for (let n = 1; n <= count; n++) {
@@ -420,8 +428,9 @@ const actions = {
         const idx = state.frozen.findIndex(f => f.id === Number(data.id));
         if (idx === -1) return { error: 'invalid' };
         const f = state.frozen[idx];
-        const t = state.tables[tableKey(f.type, f.number)];
-        if (!t) return { error: 'invalid' };
+        const target = data.toNumber !== undefined ? Number(data.toNumber) : f.number;
+        if (!isValidTable(f.type, target)) return { error: 'invalid' };
+        const t = state.tables[tableKey(f.type, target)];
         if (t.status !== 'idle') return { error: 'table_busy' };
 
         // الرصيد المفتوح يكمل العد من حيث وقف، والمحدد يكمل العد التنازلي
@@ -433,6 +442,29 @@ const actions = {
         queueLights(state, fx, t.type, t.number, 'ON');
         addActivity(state, 'RESUME_FROZEN', t.type, t.number, { customer: f.customer });
         addEvent(state, 'START', t.type, t.number);
+    },
+
+    addTicket(state, fx, now, data) {
+        const name = String(data.name || '').trim().slice(0, 30);
+        const game = String(data.game || '');
+        if (!name || !WAIT_GAMES.includes(game)) return { error: 'invalid' };
+        let players = null;
+        if (game === 'bowl') {
+            players = Number(data.players);
+            if (!Number.isInteger(players) || players < 1 || players > 6) return { error: 'invalid' };
+        }
+        if (state.waitlist.length >= WAITLIST_LIMIT) return { error: 'invalid' };
+        const day = riyadhDay(now);
+        if (state.ticketDay !== day) { state.ticketDay = day; state.ticketCounters = {}; }
+        const num = (state.ticketCounters[game] || 0) + 1;
+        state.ticketCounters[game] = num;
+        state.waitlist.push({ id: state.nextTicketId++, game, name, players, num, createdAt: now });
+    },
+
+    removeTicket(state, fx, now, data) {
+        const idx = state.waitlist.findIndex(w => w.id === Number(data.id));
+        if (idx === -1) return { unchanged: true };
+        state.waitlist.splice(idx, 1);
     },
 
     // مسح البيانات — كلمة مرور الإدارة تتفحص قبل ما نوصل هنا
@@ -491,7 +523,7 @@ function view(state, staff, now = Date.now()) {
         tables[k] = { status: t.status, mode: t.mode, seconds: secondsFor(t, now) };
     }
     const out = { role: staff ? 'staff' : 'viewer', tables, events: state.events, resetCount: state.resetCount };
-    if (staff) { out.frozen = state.frozen; out.activity = state.activity; }
+    if (staff) { out.frozen = state.frozen; out.activity = state.activity; out.waitlist = state.waitlist; }
     return out;
 }
 

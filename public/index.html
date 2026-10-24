@@ -89,6 +89,74 @@
         .bowling-nums { display: none; gap: 5px; margin-top: 10px; margin-bottom: 15px; }
         .num-btn { background: #333; border: 2px solid var(--gold); color: white; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: 900;}
         .num-btn.selected { background: var(--gold); color: black; }
+        .bowling-nums { flex-direction: column; align-items: center; position: relative; }
+        .pin-row { display: flex; gap: 10px; justify-content: center; perspective: 400px; padding-top: 10px; }
+        .pin-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0; opacity: 0.4; transform: rotateX(18deg); transform-origin: bottom; transition: transform 0.25s ease, opacity 0.25s, filter 0.25s; }
+        .pin-btn svg { width: 30px; height: 74px; filter: drop-shadow(0 6px 4px rgba(0,0,0,0.6)); }
+        .pin-btn span { color: #aaa; font-weight: 900; font-size: 14px; }
+        .pin-btn:hover { opacity: 0.7; }
+        .pin-btn.lit { opacity: 1; transform: rotateX(0deg) translateY(-8px); filter: drop-shadow(0 0 10px rgba(212,175,55,0.8)); }
+        .pin-btn.lit span { color: var(--gold); }
+        .pin-label { color: var(--gold); font-weight: 900; font-size: 18px; margin-top: 6px; }
+        .pin-label.need { color: var(--red); animation: shake 0.4s; }
+        @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        .roll-stage { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .roll-ball { position: absolute; bottom: 30px; width: 44px; height: 44px; animation: rollAcross 0.9s cubic-bezier(.4,.1,.6,1) forwards; }
+        .roll-ball svg { width: 100%; height: 100%; animation: spin 0.3s linear infinite; }
+        @keyframes rollAcross { from { right: -50px; } to { right: calc(100% + 10px); } }
+        .pin-btn.knock { animation: knock 0.6s ease forwards; }
+        @keyframes knock { 0% { transform: translateY(-8px); } 100% { transform: translate(-20px, 10px) rotate(-75deg); opacity: 0; } }
+        @keyframes spin { to { transform: rotate(-360deg); } }
+        @keyframes ticketIn { from { transform: perspective(800px) rotateX(-80deg); opacity: 0; } to { transform: perspective(800px) rotateX(0); opacity: 1; } }
+        .ticket-badge .ball-holes { transform-origin: 50px 50px; animation: spin 6s linear infinite; }
+        .ticket-pins { display: inline-flex; gap: 3px; vertical-align: middle; }
+        .ticket-pins svg { width: 11px; height: 26px; }
+        .ticket-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .ticket-actions .btn { width: auto; padding: 8px 18px; font-size: 14px; }
+        .strike-ball { position: absolute; top: 50%; width: 50px; height: 50px; margin-top: -25px; animation: rollAcross 0.7s ease-in forwards; z-index: 3; }
+        .strike-ball svg { width: 100%; height: 100%; animation: spin 0.25s linear infinite; }
+        .strike-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 900; color: var(--gold); text-shadow: 0 0 18px rgba(212,175,55,0.9); animation: strikePop 0.9s ease forwards; z-index: 4; pointer-events: none; }
+        @keyframes strikePop { 0% { transform: scale(0.3); opacity: 0; } 40% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .wait-ticket.ticket-out { animation: ticketOut 0.4s ease forwards; }
+        @keyframes ticketOut { to { transform: translateX(-60px); opacity: 0; } }
+        body.reduce-motion *, body.reduce-motion *::before { animation: none !important; transition: none !important; }
+        .wait-layout { display: grid; grid-template-columns: minmax(340px, 480px) 1fr; gap: 30px; align-items: start; }
+        @media (max-width: 1100px) { .wait-layout { grid-template-columns: 1fr; } }
+        .wait-form { max-width: none; position: sticky; top: 0; }
+        .wait-col-title { color: var(--gold); border-bottom: 2px dashed var(--gold); padding-bottom: 5px; margin-top: 0; }
+        .frost-title { color: #7fdcff; border-bottom-color: #17a2b8; margin-top: 30px; }
+        .game-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .game-tile { background: linear-gradient(180deg, #2b2b2b, #141414); border: 1px solid #555; border-radius: 12px; color: var(--white); font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 13px; padding: 10px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 6px 0 #050505, 0 8px 14px rgba(0,0,0,0.5); transition: transform 0.12s, box-shadow 0.12s, border-color 0.2s; }
+        .game-tile .tile-icon { font-size: 28px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.6)); }
+        .game-tile:active { transform: translateY(5px); box-shadow: 0 1px 0 #050505, 0 2px 6px rgba(0,0,0,0.5); }
+        .game-tile.selected { border: 2px solid var(--gold); background: linear-gradient(180deg, #0a4a8f, var(--blue)); box-shadow: 0 6px 0 #001a33, 0 0 18px rgba(212,175,55,0.45); }
+        .btn-issue { width: 100%; font-size: 20px; padding: 15px; box-shadow: 0 6px 0 #001a33; }
+        .btn-issue:active { transform: translateY(5px); box-shadow: 0 1px 0 #001a33; }
+        .wait-group { margin-bottom: 22px; }
+        .wait-group-title { color: var(--white); font-size: 18px; font-weight: 900; margin: 0 0 10px; }
+        .wait-group-title small { color: var(--gold); font-size: 14px; }
+        .wait-ticket { flex-wrap: wrap; gap: 12px; margin-bottom: 12px; padding: 16px 18px; }
+        .ticket-3d { transform-style: preserve-3d; transition: transform 0.15s ease; overflow: hidden; }
+        .ticket-3d.ticket-in { animation: ticketIn 0.6s ease; }
+        .ticket-main { display: flex; align-items: center; gap: 16px; }
+        .ticket-badge { width: 58px; height: 58px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; background: radial-gradient(circle at 35% 30%, #3a3a3a, #0b0b0b 70%); border: 2px solid var(--gold); box-shadow: 0 8px 10px rgba(0,0,0,0.6), inset 0 -4px 8px rgba(0,0,0,0.6); }
+        .ticket-meta { display: flex; gap: 10px; align-items: center; margin-top: 5px; flex-wrap: wrap; }
+        .ticket-pos { color: #aaa; font-size: 14px; font-weight: 900; }
+        .wait-age { font-size: 14px; font-weight: 900; color: gray; }
+        .wait-age.age-warn { color: #ffc107; }
+        .wait-age.age-late { color: var(--red); }
+        .seat-panel { flex-basis: 100%; border-top: 1px dashed #555; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .seat-label { color: #aaa; font-size: 14px; font-weight: 900; }
+        .seat-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .seat-chip { min-width: 52px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--gold); background: linear-gradient(180deg, #2b2b2b, #141414); color: var(--white); font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 0 #050505; }
+        .seat-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 #050505; }
+        .seat-chip.selected { background: var(--gold); color: #000; }
+        .seat-none { color: var(--red); font-weight: 900; font-size: 14px; }
+        .wait-empty { color: gray; }
+        .frozen-card.frost { background: linear-gradient(135deg, rgba(127,220,255,0.16), rgba(23,162,184,0.08)); border: 1px solid rgba(127,220,255,0.45); border-right: 6px solid #7fdcff; backdrop-filter: blur(8px); box-shadow: 0 8px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15); flex-wrap: wrap; gap: 10px; border-radius: 12px; }
+        .frozen-card.frost .seat-panel { border-top-color: rgba(127,220,255,0.4); }
+        .frozen-at { color: #7fdcff; font-size: 13px; }
+        .frozen-card.frost > .btn { flex: 0 0 auto; }
         
         .wait-vertical-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; margin-bottom: 40px;}
         .wait-ticket { background: linear-gradient(135deg, rgba(34,34,34,0.95), rgba(15,15,15,0.95)); border: 2px solid var(--gold); border-radius: 12px; padding: 20px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; justify-content: space-between; align-items: center; border-right: 8px solid var(--blue);}
@@ -130,6 +198,26 @@
     </style>
 </head>
 <body class="viewer">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <linearGradient id="pinShade" x1="0" x2="1">
+                <stop offset="0" stop-color="#9a9a9a"/><stop offset="0.35" stop-color="#ffffff"/><stop offset="0.7" stop-color="#e6e6e6"/><stop offset="1" stop-color="#8a8a8a"/>
+            </linearGradient>
+            <radialGradient id="ballShade" cx="0.35" cy="0.3" r="0.75">
+                <stop offset="0" stop-color="#5aa0ff"/><stop offset="0.45" stop-color="#0d3f8f"/><stop offset="1" stop-color="#020c22"/>
+            </radialGradient>
+            <clipPath id="pinClip"><path d="M20 2 C27 2 29 10 27 18 C25 24 23 27 23 31 C23 36 33 44 33 62 C33 80 27 96 20 98 C13 96 7 80 7 62 C7 44 17 36 17 31 C17 27 15 24 13 18 C11 10 13 2 20 2Z"/></clipPath>
+            <g id="bolos-pin">
+                <path d="M20 2 C27 2 29 10 27 18 C25 24 23 27 23 31 C23 36 33 44 33 62 C33 80 27 96 20 98 C13 96 7 80 7 62 C7 44 17 36 17 31 C17 27 15 24 13 18 C11 10 13 2 20 2Z" fill="url(#pinShade)"/>
+                <g clip-path="url(#pinClip)"><rect x="0" y="25" width="40" height="3.5" fill="#cc0000"/><rect x="0" y="31" width="40" height="3.5" fill="#cc0000"/></g>
+            </g>
+            <g id="bolos-ball">
+                <circle cx="50" cy="50" r="48" fill="url(#ballShade)"/>
+                <g class="ball-holes"><circle cx="40" cy="34" r="6" fill="#01060f"/><circle cx="56" cy="30" r="6" fill="#01060f"/><circle cx="50" cy="52" r="7" fill="#01060f"/></g>
+                <ellipse cx="34" cy="26" rx="14" ry="8" fill="#ffffff" opacity="0.18"/>
+            </g>
+        </defs>
+    </svg>
     <div class="toasts" id="toasts"></div>
     <div class="conn-lost" id="conn-lost">⚠️ انقطع الاتصال بالسيرفر... جاري إعادة المحاولة</div>
     <div class="sidebar">
@@ -281,32 +369,36 @@
             <!-- 3. صفحة الانتظار -->
             <div id="waiting" class="page">
                 <h1 data-tr="title_wait">قائمة الانتظار والأرصدة المجمدة</h1>
-                <div class="settings-box">
-                    <h3 style="color: var(--gold); margin-top: 0;" data-tr="add_wait">إصدار تذكرة انتظار</h3>
-                    <input type="text" id="wait-name" placeholder="اسم الزبون..." data-tr-ph="ph_name">
-                    <select id="wait-game" onchange="checkBowling()">
-                        <option value="bowl" data-tr="opt_bowl">🎳 بولينج</option>
-                        <option value="pool" data-tr="opt_pool">🎱 بلياردو</option>
-                        <option value="pingpong" data-tr="opt_ping">🏓 تنس طاولة</option>
-                        <option value="foosball" data-tr="opt_foos">⚽ فرفيرة</option>
-                        <option value="ps" data-tr="opt_ps">🎮 بلايستيشن</option>
-                        <option value="baloot" data-tr="opt_baloot">🃏 بلوت</option>
-                        <option value="karaoke" data-tr="opt_kar">🎤 كاريوكي</option>
-                    </select>
-                    <div class="bowling-nums" id="bowling-options" style="display: flex;">
-                        <button class="num-btn" onclick="setNum(1, this)">1</button>
-                        <button class="num-btn" onclick="setNum(2, this)">2</button>
-                        <button class="num-btn" onclick="setNum(3, this)">3</button>
-                        <button class="num-btn" onclick="setNum(4, this)">4</button>
-                        <button class="num-btn" onclick="setNum(5, this)">5</button>
-                        <button class="num-btn" onclick="setNum(6, this)">6</button>
+                <div class="wait-layout">
+                    <div class="wait-form-col">
+                        <div class="settings-box wait-form">
+                            <h3 style="color: var(--gold); margin-top: 0;" data-tr="add_wait">إصدار تذكرة انتظار</h3>
+                            <input type="text" id="wait-name" placeholder="اسم الزبون..." data-tr-ph="ph_name" maxlength="30" onkeydown="if (event.key === 'Enter') addWait()">
+                            <div class="game-tiles" id="game-tiles"></div>
+                            <select id="wait-game" onchange="checkBowling()" style="display:none">
+                                <option value="bowl" data-tr="opt_bowl">🎳 بولينج</option>
+                                <option value="pool" data-tr="opt_pool">🎱 بلياردو</option>
+                                <option value="pingpong" data-tr="opt_ping">🏓 تنس طاولة</option>
+                                <option value="foosball" data-tr="opt_foos">⚽ فرفيرة</option>
+                                <option value="ps" data-tr="opt_ps">🎮 بلايستيشن</option>
+                                <option value="baloot" data-tr="opt_baloot">🃏 بلوت</option>
+                                <option value="karaoke" data-tr="opt_kar">🎤 كاريوكي</option>
+                            </select>
+                            <div class="bowling-nums" id="bowling-options" style="display: flex;">
+                                <div class="pin-row" id="pin-row"></div>
+                                <div class="pin-label" id="pin-label" data-tr="pick_players">اختر عدد اللاعبين</div>
+                                <div class="roll-stage" id="roll-stage"></div>
+                            </div>
+                            <button class="btn btn-blue btn-issue" onclick="addWait()" data-tr="btn_add">➕ إصدار تذكرة</button>
+                        </div>
                     </div>
-                    <button class="btn btn-blue" style="width: 100%; font-size: 20px; padding: 15px;" onclick="addWait()" data-tr="btn_add">➕ إصدار تذكرة</button>
+                    <div class="wait-list-col">
+                        <h3 class="wait-col-title" data-tr="title_wait_list">⏳ التذاكر الحالية</h3>
+                        <div id="wait-list"></div>
+                        <h3 class="wait-col-title frost-title" data-tr="title_frozen">❄️ الأرصدة المجمدة</h3>
+                        <div id="frozen-list"></div>
+                    </div>
                 </div>
-                <h3 style="color: var(--gold); border-bottom: 2px dashed var(--gold); padding-bottom:5px; margin-top: 30px;" data-tr="title_wait_list">⏳ التذاكر الحالية</h3>
-                <div id="wait-list" class="wait-vertical-list"></div>
-                <h3 style="color: #17a2b8; border-bottom: 2px dashed #17a2b8; padding-bottom:5px; margin-top: 30px;" data-tr="title_frozen">❄️ الأرصدة المجمدة</h3>
-                <div id="frozen-list"><p style="color: gray;" id="no-frozen" data-tr="no_frozen">لا توجد أرصدة مجمدة حالياً.</p></div>
             </div>
 
             <!-- 4. التقارير -->
@@ -329,6 +421,7 @@
                 </div>
                 <div class="settings-box">
                     <button class="btn btn-blue" style="width: 100%; margin-bottom: 15px; padding: 15px; font-size:18px;" onclick="document.body.classList.toggle('light-mode')" data-tr="btn_theme">تبديل المظهر (دارك/لايت)</button>
+                    <label style="display:flex; align-items:center; gap:10px; margin-bottom:15px; cursor:pointer;"><input type="checkbox" id="reduce-motion" style="width:auto; margin:0;" onchange="setReduceMotion(this.checked)"> <span data-tr="reduce_motion">تقليل الحركة (إيقاف الأنيميشن)</span></label>
                     <button class="btn btn-red" style="width: 100%; padding: 15px; font-size:18px;" onclick="masterReset()" data-tr="btn_reset">⚠️ إعادة تعيين ومسح البيانات</button>
                 </div>
             </div>
@@ -389,7 +482,8 @@
                 prompt_name: 'أدخل اسم الزبون لحفظ الرصيد:', ph_name: 'اسم الزبون...',
                 btn_login: '🔐 دخول الموظفين', btn_logout: '🚪 تسجيل خروج', prompt_pin: 'أدخل الرقم السري للموظفين:',
                 prompt_admin: 'كلمة مرور الإدارة:', no_history: 'لا توجد نشاطات مسجلة حتى الآن.',
-                log_empty: 'لا توجد حركات بعد', log_more: 'عرض الكل ⌄', log_less: 'عرض أقل ⌃', log_general: 'الأرصدة المجمدة', resume: 'استئناف', open_tag: 'مفتوح',
+                log_empty: 'لا توجد حركات بعد', log_more: 'عرض الكل ⌄', log_less: 'عرض أقل ⌃', log_general: 'الأرصدة المجمدة',
+                pick_players: 'اختر عدد اللاعبين', go_text: 'تفضّلوا!', seat_none: 'ما فيه طاولة فاضية الحين', waiting_n: 'بالانتظار', no_tickets: 'لا توجد تذاكر حالياً.', frozen_at: '❄️ جُمّد', resume_pick: 'كمّل على طاولة:', btn_cancel_small: '✕ إلغاء', minutes_short: 'د', players_n: 'لاعبين', player_1: 'لاعب', need_players: 'اختر عدد اللاعبين أولاً 👆', btn_turn: '✅ دورهم', btn_remove: '🗑 حذف', confirm_remove: 'حذف التذكرة؟', strike: 'STRIKE! 🎳', reduce_motion: 'تقليل الحركة (إيقاف الأنيميشن)', resume: 'استئناف', open_tag: 'مفتوح',
                 conn_lost: '⚠️ انقطع الاتصال بالسيرفر... جاري إعادة المحاولة', reset_done: 'تم مسح النظام!',
                 err_not_authorized: 'لازم تسجل دخول كموظف أولاً.', err_table_busy: 'الطاولة مشغولة، صفّرها أولاً.',
                 err_bad_password: 'كلمة المرور غلط.', err_invalid: 'طلب غير صالح.', err_server_error: 'صار خطأ في السيرفر.',
@@ -415,7 +509,8 @@
                 prompt_name: 'Enter customer name to save time:', ph_name: 'Customer Name...',
                 btn_login: '🔐 Staff Login', btn_logout: '🚪 Log Out', prompt_pin: 'Enter staff PIN:',
                 prompt_admin: 'Admin password:', no_history: 'No activity recorded yet.',
-                log_empty: 'No activity yet', log_more: 'Show all ⌄', log_less: 'Show less ⌃', log_general: 'Frozen balances', resume: 'Resume', open_tag: 'Open',
+                log_empty: 'No activity yet', log_more: 'Show all ⌄', log_less: 'Show less ⌃', log_general: 'Frozen balances',
+                pick_players: 'Pick the number of players', go_text: 'Your turn!', seat_none: 'No free table right now', waiting_n: 'waiting', no_tickets: 'No tickets right now.', frozen_at: '❄️ Frozen', resume_pick: 'Resume on table:', btn_cancel_small: '✕ Cancel', minutes_short: 'min', players_n: 'players', player_1: 'player', need_players: 'Pick the number of players first 👆', btn_turn: '✅ Their turn', btn_remove: '🗑 Remove', confirm_remove: 'Remove this ticket?', strike: 'STRIKE! 🎳', reduce_motion: 'Reduce motion (turn off animations)', resume: 'Resume', open_tag: 'Open',
                 conn_lost: '⚠️ Connection lost... reconnecting', reset_done: 'System data cleared!',
                 err_not_authorized: 'Please log in as staff first.', err_table_busy: 'That table is busy — reset it first.',
                 err_bad_password: 'Wrong password.', err_invalid: 'Invalid request.', err_server_error: 'Server error.',
@@ -500,7 +595,6 @@
             }).join('');
         }
 
-        let ticketCounters = { 'bowl': 1, 'pool': 1, 'pingpong': 1, 'foosball': 1, 'ps': 1, 'baloot': 1, 'karaoke': 1 };
         let selectedBowlingNum = "";
 
         const tablesArray = [
@@ -668,7 +762,10 @@
             renderAnalytics();
             renderHistory();
             renderTables();   // يرجّع نص زر الإيقاف/الاستئناف الصحيح بعد الترجمة
-            renderFrozen();
+            renderFrozen(true);
+            renderWaitlist(true);
+            renderGameTiles();
+            if (selectedBowlingNum) setNum(selectedBowlingNum); else resetPins();
             updateLoginBtn();
             document.getElementById('conn-lost').innerText = dict[currentLang].conn_lost;
         }
@@ -987,24 +1084,39 @@
             sendAction('freezeTable', { type, number: num, customer: custName.trim() });
         }
 
-        function resumeFrozen(id) {
+        function resumeFrozen(id, toNumber) {
             if (!requireStaff()) return;
-            sendAction('resumeFrozen', { id });
+            frozenOpen = null;
+            sendAction('resumeFrozen', { id, toNumber });
         }
 
-        function renderFrozen() {
+        function renderFrozen(force = false) {
+            const free = frozenList.map(f => freeTables(f.type).join(',')).join('|');
+            const sig = currentLang + '#' + frozenList.map(f => f.id).join(',') + '#' + frozenOpen + '#' + free;
+            if (!force && sig === frozenSig) return;
+            frozenSig = sig;
+            const T = dict[currentLang];
             const list = document.getElementById('frozen-list');
-            if (!frozenList.length) {
-                list.innerHTML = `<p style="color: gray;" id="no-frozen" data-tr="no_frozen">${dict[currentLang].no_frozen}</p>`;
-                return;
-            }
+            if (!frozenList.length) { list.innerHTML = `<p style="color: gray;">${T.no_frozen}</p>`; return; }
             list.innerHTML = frozenList.map(f => {
-                const tableName = `${TYPE_ICONS[f.type] || ''} ${dict[currentLang]['sec_' + f.type] || f.type} ${f.number}`;
-                const timeLabel = formatTime(f.seconds) + (f.mode === 'open' ? ` (${dict[currentLang].open_tag})` : '');
+                const tableName = `${TYPE_ICONS[f.type] || ''} ${T['sec_' + f.type] || f.type} ${f.number}`;
+                const timeLabel = formatTime(f.seconds) + (f.mode === 'open' ? ` (${T.open_tag})` : '');
+                let panel = '';
+                if (frozenOpen === f.id) {
+                    const freeNow = freeTables(f.type);
+                    panel = `<div class="seat-panel">` + (freeNow.length
+                        ? `<div class="seat-label">${T.resume_pick}</div><div class="seat-row">${freeNow.map(n =>
+                            `<button class="seat-chip${n === f.number ? ' selected' : ''}" onclick="resumeFrozen(${Number(f.id)}, ${n})">${n}</button>`).join('')}</div>`
+                        : `<div class="seat-none">${T.seat_none}</div>`)
+                        + `<div class="seat-row"><button class="seat-chip" onclick="frozenOpen = null; renderFrozen(true)">${T.btn_cancel_small}</button></div></div>`;
+                }
                 return `
-                <div class="frozen-card">
-                    <span><strong style="font-size:20px;">${escapeHtml(f.customer)}</strong> - ${tableName} <br><small style="color:#d4af37; font-size:16px;">${timeLabel}</small></span>
-                    <button class="btn btn-gold" style="width:auto; padding:10px 20px;" onclick="resumeFrozen(${Number(f.id)})">${dict[currentLang].resume}</button>
+                <div class="frozen-card frost">
+                    <span><strong style="font-size:20px;">${escapeHtml(f.customer)}</strong> - ${tableName}<br>
+                        <small style="color:#d4af37; font-size:16px;">${timeLabel}</small>
+                        ${f.createdAt ? `<small class="frozen-at"> · ${T.frozen_at} ${fmtClock(f.createdAt)}</small>` : ''}</span>
+                    <button class="btn btn-gold" style="width:auto; padding:10px 20px;" onclick="frozenOpen = ${Number(f.id)}; renderFrozen(true)">${T.resume}</button>
+                    ${panel}
                 </div>`;
             }).join('');
         }
@@ -1082,6 +1194,7 @@
 
             if (snap.role === 'staff') {
                 frozenList = snap.frozen || []; renderFrozen();
+                waitList = snap.waitlist || []; renderWaitlist();
                 activityHistory = snap.activity || []; renderHistory();
             }
         }
@@ -1127,41 +1240,168 @@
         setInterval(renderTables, 500);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
 
+        const WAIT_GAMES_UI = [
+            { key: 'bowl', icon: '🎳' }, { key: 'pool', icon: '🎱' }, { key: 'pingpong', icon: '🏓' }, { key: 'foosball', icon: '⚽' },
+            { key: 'ps', icon: '🎮' }, { key: 'baloot', icon: '🃏' }, { key: 'karaoke', icon: '🎤' }
+        ];
+        const gameLabel = (key) => key === 'bowl' ? dict[currentLang].opt_bowl : (dict[currentLang]['sec_' + key] || key);
+        let waitList = [];
+        let frozenOpen = null;
+        let knownTickets = null;
+        let waitSig = '', frozenSig = '';
+        const pinSvg = () => `<svg viewBox="0 0 40 100"><use href="#bolos-pin"/></svg>`;
+        const ballSvg = () => `<svg viewBox="0 0 100 100"><use href="#bolos-ball"/></svg>`;
+        const playersText = (n) => `${n} ${n === 1 ? dict[currentLang].player_1 : dict[currentLang].players_n}`;
+        const freeTables = (type) => {
+            const cat = tablesArray.find(c => c.type === type);
+            const out = [];
+            if (cat) for (let i = 1; i <= cat.count; i++) if (getT(type, i).status === 'idle') out.push(i);
+            return out;
+        };
+        function positionText(i) {
+            const ar = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر'];
+            if (currentLang === 'ar') return i < ar.length ? ar[i] : `رقم ${i + 1} بالدور`;
+            const n = i + 1, sfx = (n % 10 === 1 && n !== 11) ? 'st' : (n % 10 === 2 && n !== 12) ? 'nd' : (n % 10 === 3 && n !== 13) ? 'rd' : 'th';
+            return `${n}${sfx} in line`;
+        }
+        function ageInfo(createdAt) {
+            const mins = Math.max(0, Math.floor((Date.now() - createdAt) / 60000));
+            return { text: `⏱ ${mins} ${dict[currentLang].minutes_short}`, cls: mins >= 30 ? 'age-late' : mins >= 15 ? 'age-warn' : '' };
+        }
+        function renderGameTiles() {
+            const current = document.getElementById('wait-game').value;
+            document.getElementById('game-tiles').innerHTML = WAIT_GAMES_UI.map(g =>
+                `<button class="game-tile${g.key === current ? ' selected' : ''}" onclick="pickGame('${g.key}')"><span class="tile-icon">${g.icon}</span>${gameLabel(g.key)}</button>`).join('');
+        }
+        function renderPins() {
+            document.getElementById('pin-row').innerHTML = [1, 2, 3, 4, 5, 6].map(n =>
+                `<button class="pin-btn" data-n="${n}" onclick="setNum(${n})">${pinSvg()}<span>${n}</span></button>`).join('');
+        }
+        function pickGame(key) {
+            document.getElementById('wait-game').value = key;
+            renderGameTiles(); checkBowling();
+            document.getElementById('wait-name').focus();
+        }
         function checkBowling() { document.getElementById('bowling-options').style.display = document.getElementById('wait-game').value === 'bowl' ? 'flex' : 'none'; }
-        function setNum(num, btn) { document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedBowlingNum = num; }
-        
-        function addWait() {
-            const name = document.getElementById('wait-name').value;
-            const gameKey = document.getElementById('wait-game').value; 
-            if (!name) return;
-            
-            let selectElem = document.getElementById('wait-game');
-            let details = selectElem.options[selectElem.selectedIndex].text;
-            if (gameKey === 'bowl' && selectedBowlingNum) details += ` (${selectedBowlingNum} ${currentLang === 'ar' ? 'لاعبين' : 'Players'})`;
+        function setNum(num) {
+            selectedBowlingNum = num;
+            document.querySelectorAll('.pin-btn').forEach(p => p.classList.toggle('lit', Number(p.dataset.n) <= num));
+            const label = document.getElementById('pin-label');
+            label.classList.remove('need'); label.innerText = playersText(num);
+        }
+        function resetPins() {
+            selectedBowlingNum = '';
+            document.querySelectorAll('.pin-btn').forEach(p => p.classList.remove('lit', 'knock'));
+            const label = document.getElementById('pin-label');
+            label.classList.remove('need'); label.innerText = dict[currentLang].pick_players;
+        }
+        function playBowlingRoll(done) {
+            if (document.body.classList.contains('reduce-motion')) { done(); return; }
+            const stage = document.getElementById('roll-stage');
+            stage.innerHTML = `<div class="roll-ball">${ballSvg()}</div>`;
+            setTimeout(() => document.querySelectorAll('.pin-btn.lit').forEach(p => p.classList.add('knock')), 450);
+            setTimeout(() => { stage.innerHTML = ''; done(); }, 1000);
+        }
+        function tiltTicket(el, ev) {
+            if (document.body.classList.contains('reduce-motion')) return;
+            const r = el.getBoundingClientRect();
+            const x = (ev.clientX - r.left) / r.width - 0.5, y = (ev.clientY - r.top) / r.height - 0.5;
+            el.style.transform = `perspective(900px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
+        }
+        function untiltTicket(el) { el.style.transform = ''; }
+        function setReduceMotion(on) {
+            document.body.classList.toggle('reduce-motion', on);
+            try { localStorage.setItem('bolosReduceMotion', on ? '1' : ''); } catch(e) {}
+        }
+        try { if (localStorage.getItem('bolosReduceMotion')) { document.body.classList.add('reduce-motion'); document.getElementById('reduce-motion').checked = true; } } catch(e) {}
 
-            let timeNow = new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'});
-            let ticketNum = ticketCounters[gameKey]++;
-            
-            if(sysStats[gameKey]) { sysStats[gameKey].tickets++; saveStats(); }
-
-            document.getElementById('wait-list').innerHTML += `
-                <div class="wait-ticket">
-                    <div class="ticket-info">
-                        <span class="ticket-name">${escapeHtml(name)}</span>
-                        <div style="display:flex; gap:10px; align-items:center; margin-top:5px;">
-                            <span class="ticket-number">${currentLang === 'ar' ? 'رقم' : '#'} ${ticketNum}</span>
-                            <span class="ticket-game">${details}</span>
+        function ticketHtml(w, pos, isNew) {
+            const T = dict[currentLang];
+            const bowl = w.game === 'bowl';
+            const icon = (WAIT_GAMES_UI.find(g => g.key === w.game) || {}).icon || '🎟️';
+            const age = ageInfo(w.createdAt);
+            return `
+                <div class="wait-ticket ticket-3d${isNew ? ' ticket-in' : ''}" onmousemove="tiltTicket(this, event)" onmouseleave="untiltTicket(this)">
+                    <div class="ticket-main">
+                        <div class="ticket-badge">${bowl ? ballSvg() : icon}</div>
+                        <div class="ticket-info">
+                            <span class="ticket-name">${escapeHtml(w.name)}</span>
+                            <div class="ticket-meta">
+                                <span class="ticket-number"># ${w.num}</span>
+                                ${bowl ? `<span class="ticket-game">🎳 ${playersText(w.players)}</span><span class="ticket-pins">${pinSvg().repeat(w.players)}</span>` : ''}
+                                <span class="ticket-pos">${positionText(pos)}</span>
+                            </div>
                         </div>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-                        <span style="color: gray; font-size: 14px; font-weight:900;">⏰ ${timeNow}</span>
-                        <button class="btn btn-red" style="width:auto; padding:8px 20px; font-size: 14px;" onclick="this.parentElement.parentElement.remove()">${currentLang === 'ar' ? 'إنهاء / حذف' : 'Remove'}</button>
+                    <div class="ticket-actions">
+                        <span class="wait-age ${age.cls}" data-since="${w.createdAt}">${age.text}</span>
+                        <button class="btn btn-go" onclick="theirTurn(${w.id}, this)">${T.btn_turn}</button>
+                        <button class="btn btn-soft" onclick="removeTicket(${w.id}, this)">${T.btn_remove}</button>
                     </div>
-                </div>
-            `;
-            document.getElementById('wait-name').value = "";
-            document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
-            selectedBowlingNum = "";
+                </div>`;
+        }
+        function renderWaitlist(force = false) {
+            const sig = currentLang + '#' + waitList.map(w => w.id).join(',');
+            if (!force && sig === waitSig) return;
+            waitSig = sig;
+            const T = dict[currentLang];
+            const box = document.getElementById('wait-list');
+            if (!waitList.length) { box.innerHTML = `<p class="wait-empty">${T.no_tickets}</p>`; knownTickets = knownTickets || new Set(); return; }
+            const firstRender = knownTickets === null;
+            knownTickets = knownTickets || new Set();
+            box.innerHTML = WAIT_GAMES_UI.map(g => {
+                const list = waitList.filter(w => w.game === g.key);
+                if (!list.length) return '';
+                return `<div class="wait-group"><h4 class="wait-group-title">${g.icon} ${gameLabel(g.key)} <small>· ${list.length} ${T.waiting_n}</small></h4>
+                    ${list.map((w, i) => ticketHtml(w, i, !firstRender && !knownTickets.has(w.id))).join('')}</div>`;
+            }).join('');
+            waitList.forEach(w => knownTickets.add(w.id));
+        }
+        setInterval(() => {
+            document.querySelectorAll('.wait-age[data-since]').forEach(el => {
+                const a = ageInfo(Number(el.dataset.since));
+                el.innerText = a.text; el.className = 'wait-age ' + a.cls;
+            });
+        }, 15000);
+        function slideOut(btn, then) {
+            if (document.body.classList.contains('reduce-motion')) { then(); return; }
+            btn.closest('.wait-ticket').classList.add('ticket-out');
+            setTimeout(then, 400);
+        }
+        function removeTicket(id, btn) {
+            if (!requireStaff() || !confirm(dict[currentLang].confirm_remove)) return;
+            slideOut(btn, () => sendAction('removeTicket', { id }));
+        }
+        function theirTurn(id, btn) {
+            if (!requireStaff()) return;
+            const w = waitList.find(x => x.id === id);
+            const ticket = btn.closest('.wait-ticket');
+            if (!w || document.body.classList.contains('reduce-motion')) { sendAction('removeTicket', { id }); return; }
+            ticket.style.transform = '';
+            const icon = (WAIT_GAMES_UI.find(g => g.key === w.game) || {}).icon || '';
+            ticket.insertAdjacentHTML('beforeend', w.game === 'bowl'
+                ? `<div class="strike-ball">${ballSvg()}</div><div class="strike-text" dir="ltr">${dict[currentLang].strike}</div>`
+                : `<div class="strike-text">${icon} ${dict[currentLang].go_text}</div>`);
+            setTimeout(() => slideOut(btn, () => sendAction('removeTicket', { id })), 1000);
+        }
+        function addWait() {
+            if (!requireStaff()) return;
+            const nameInput = document.getElementById('wait-name');
+            const name = nameInput.value.trim();
+            const game = document.getElementById('wait-game').value;
+            if (!name) { nameInput.focus(); return; }
+            if (game === 'bowl' && !selectedBowlingNum) {
+                const label = document.getElementById('pin-label');
+                label.innerText = dict[currentLang].need_players;
+                label.classList.remove('need'); void label.offsetWidth; label.classList.add('need');
+                return;
+            }
+            const players = game === 'bowl' ? selectedBowlingNum : null;
+            if (sysStats[game]) { sysStats[game].tickets++; saveStats(); }
+            nameInput.value = '';
+            const send = () => sendAction('addTicket', { game, name, players });
+            if (game === 'bowl') playBowlingRoll(() => { send(); resetPins(); });
+            else send();
         }
 
         // كلمة المرور تتفحص في السيرفر فقط — ما تنكتب في الصفحة
@@ -1173,6 +1413,8 @@
 
         // تشغيل كل شيء بمجرد فتح الصفحة مباشرة
         renderAnalytics();
+        renderGameTiles();
+        renderPins();
         initCardMenus();
         renderTables();
         updateAvailability();
