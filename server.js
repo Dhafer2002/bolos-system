@@ -42,7 +42,8 @@ if (!ADMIN_PASSWORD) console.warn('⚠️  ADMIN_PASSWORD is not set — master 
 const TABLE_LAYOUT = { pool: 5, pingpong: 2, foosball: 3, ps: 2, baloot: 2, karaoke: 1 };
 const MAX_DURATION_MINUTES = 12 * 60; // أطول مدة مسموحة: 12 ساعة
 const isValidDuration = (m) => Number.isInteger(m) && m >= 1 && m <= MAX_DURATION_MINUTES;
-const ACTIVITY_LIMIT = 50;
+const ACTIVITY_PER_GAME = 20; // كل لعبة تحتفظ بآخر 20 حركة لها
+const activityBucket = (a) => (a.action === 'FREEZE' || a.action === 'RESUME_FROZEN') ? 'general' : a.type;
 const EVENTS_LIMIT = 30;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // دخول الموظف يبقى 30 يوم
 
@@ -215,7 +216,12 @@ function secondsFor(t, now) {
 
 function addActivity(state, action, type, number, extra = {}) {
     state.activity.unshift({ ts: Date.now(), action, type, number, ...extra });
-    if (state.activity.length > ACTIVITY_LIMIT) state.activity.length = ACTIVITY_LIMIT;
+    const seen = {};
+    state.activity = state.activity.filter(a => {
+        const b = activityBucket(a);
+        seen[b] = (seen[b] || 0) + 1;
+        return seen[b] <= ACTIVITY_PER_GAME;
+    });
 }
 
 function addEvent(state, action, type, number, extra = {}) {

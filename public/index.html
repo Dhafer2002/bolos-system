@@ -105,6 +105,18 @@
         .log-item.log-pause { border-right-color: #ffc107; }
         .log-desc { font-size: 18px; font-weight: 900; color: var(--white); }
         .log-time { color: gray; font-size: 14px; font-weight: 900; }
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .log-box { background: var(--card-bg); border: 2px solid var(--blue); border-radius: 12px; padding: 16px; backdrop-filter: blur(5px); }
+        .log-box h3 { margin: 0 0 12px; color: var(--gold); font-size: 20px; font-weight: 900; border-bottom: 1px dashed #555; padding-bottom: 10px; }
+        .log-row { display: flex; gap: 10px; align-items: baseline; padding: 9px 10px; border-radius: 6px; border-right: 4px solid var(--blue); background: rgba(0,0,0,0.25); margin-bottom: 6px; font-size: 15px; font-weight: 900; color: var(--white); }
+        .log-row.log-start { border-right-color: #28a745; }
+        .log-row.log-end { border-right-color: var(--red); }
+        .log-row.log-pause { border-right-color: #ffc107; }
+        .log-row .log-time { flex-shrink: 0; min-width: 62px; }
+        .log-row.log-new { animation: logFlash 2s ease; }
+        @keyframes logFlash { 0%, 40% { background: rgba(212,175,55,0.35); } 100% { background: rgba(0,0,0,0.25); } }
+        .log-empty { color: gray; font-size: 14px; padding: 6px 2px; }
+        .log-toggle { background: none; border: none; color: var(--gold); font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 14px; cursor: pointer; padding: 6px 0 0; width: 100%; }
 
         .stat-val { font-size: 40px; color: var(--white); font-weight: 900; margin: 10px 0;}
         .stat-label { color: #aaa; font-size: 16px; }
@@ -262,8 +274,8 @@
             <!-- 2. صفحة سجل النشاطات -->
             <div id="history" class="page">
                 <h1 data-tr="title_history">📜 سجل النشاطات (أحدث الحركات)</h1>
-                <p style="color: gray; margin-bottom: 25px;" data-tr="history_desc">يتم تسجيل أحدث 50 حركة تمت على الطاولات هنا لمتابعة سير العمل.</p>
-                <div id="history-list" class="wait-vertical-list"></div>
+                <p style="color: gray; margin-bottom: 25px;" data-tr="history_desc">آخر الحركات لكل لعبة، الأحدث فوق.</p>
+                <div id="history-list" class="log-grid"></div>
             </div>
 
             <!-- 3. صفحة الانتظار -->
@@ -360,7 +372,7 @@
             'ar': {
                 nav_tables: '🎛️ الميدان', nav_history: '📜 سجل النشاطات', nav_wait: '⏳ الانتظار', nav_stats: '📊 تقارير الإدارة', nav_set: '⚙️ الإعدادات',
                 title_tables: 'الميدان - لوحة التحكم', title_history: '📜 سجل النشاطات (أحدث الحركات)', title_wait: 'قائمة الانتظار والأرصدة المجمدة', title_stats: 'تقارير الإدارة والمبيعات', title_set: 'الإعدادات الشاملة',
-                history_desc: 'يتم تسجيل أحدث 50 حركة تمت على الطاولات هنا لمتابعة سير العمل.',
+                history_desc: 'آخر الحركات لكل لعبة، الأحدث فوق.',
                 sec_pool: 'بلياردو', sec_pingpong: 'تنس طاولة', sec_foosball: 'فرفيرة', sec_ps: 'بلايستيشن', sec_baloot: 'بلوت', sec_karaoke: 'كاريوكي',
                 btn_open: 'مفتوح', btn_stop: 'تصفير ⏹️', btn_pause: 'مؤقت ⏸️', btn_resume: 'استئناف ▶️', btn_freeze: 'تجميد ❄️',
                 btn_custom: 'مخصص',
@@ -376,7 +388,8 @@
                 btn_theme: 'تبديل المظهر', btn_reset: '⚠️ إعادة تعيين ومسح البيانات', owner: 'Developed & Owned by<br>Dhafer Mohammed',
                 prompt_name: 'أدخل اسم الزبون لحفظ الرصيد:', ph_name: 'اسم الزبون...',
                 btn_login: '🔐 دخول الموظفين', btn_logout: '🚪 تسجيل خروج', prompt_pin: 'أدخل الرقم السري للموظفين:',
-                prompt_admin: 'كلمة مرور الإدارة:', no_history: 'لا توجد نشاطات مسجلة حتى الآن.', resume: 'استئناف', open_tag: 'مفتوح',
+                prompt_admin: 'كلمة مرور الإدارة:', no_history: 'لا توجد نشاطات مسجلة حتى الآن.',
+                log_empty: 'لا توجد حركات بعد', log_more: 'عرض الكل ⌄', log_less: 'عرض أقل ⌃', log_general: 'الأرصدة المجمدة', resume: 'استئناف', open_tag: 'مفتوح',
                 conn_lost: '⚠️ انقطع الاتصال بالسيرفر... جاري إعادة المحاولة', reset_done: 'تم مسح النظام!',
                 err_not_authorized: 'لازم تسجل دخول كموظف أولاً.', err_table_busy: 'الطاولة مشغولة، صفّرها أولاً.',
                 err_bad_password: 'كلمة المرور غلط.', err_invalid: 'طلب غير صالح.', err_server_error: 'صار خطأ في السيرفر.',
@@ -385,7 +398,7 @@
             'en': {
                 nav_tables: '🎛️ Tables', nav_history: '📜 Activity Log', nav_wait: '⏳ Waiting', nav_stats: '📊 Reports', nav_set: '⚙️ Settings',
                 title_tables: 'Control Panel', title_history: '📜 Activity Log (Recent Actions)', title_wait: 'Waitlist & Frozen', title_stats: 'Management Reports', title_set: 'System Settings',
-                history_desc: 'The latest 50 table actions are logged here to monitor workflow.',
+                history_desc: 'Latest actions for each game, newest first.',
                 sec_pool: 'Pool', sec_pingpong: 'Ping Pong', sec_foosball: 'Foosball', sec_ps: 'PlayStation', sec_baloot: 'Baloot', sec_karaoke: 'Karaoke',
                 btn_open: 'Open', btn_stop: 'Reset ⏹️', btn_pause: 'Pause ⏸️', btn_resume: 'Resume ▶️', btn_freeze: 'Freeze ❄️',
                 btn_custom: 'Custom',
@@ -401,7 +414,8 @@
                 btn_theme: 'Toggle Theme', btn_reset: '⚠️ Master Reset', owner: 'Developed & Owned by<br>Dhafer Mohammed',
                 prompt_name: 'Enter customer name to save time:', ph_name: 'Customer Name...',
                 btn_login: '🔐 Staff Login', btn_logout: '🚪 Log Out', prompt_pin: 'Enter staff PIN:',
-                prompt_admin: 'Admin password:', no_history: 'No activity recorded yet.', resume: 'Resume', open_tag: 'Open',
+                prompt_admin: 'Admin password:', no_history: 'No activity recorded yet.',
+                log_empty: 'No activity yet', log_more: 'Show all ⌄', log_less: 'Show less ⌃', log_general: 'Frozen balances', resume: 'Resume', open_tag: 'Open',
                 conn_lost: '⚠️ Connection lost... reconnecting', reset_done: 'System data cleared!',
                 err_not_authorized: 'Please log in as staff first.', err_table_busy: 'That table is busy — reset it first.',
                 err_bad_password: 'Wrong password.', err_invalid: 'Invalid request.', err_server_error: 'Server error.',
@@ -452,20 +466,37 @@
             }
         }
 
-        function renderHistory() {
-            let container = document.getElementById('history-list');
-            if (activityHistory.length === 0) {
-                container.innerHTML = `<p style="color: gray;">${dict[currentLang].no_history}</p>`; return;
-            }
-            container.innerHTML = activityHistory.map(log => {
-                const d = describeLog(log);
-                // وقت الصالة دايماً (حتى لو أحد فاتح من دولة ثانية)
-                const time = new Date(log.ts).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Riyadh' });
-                return `
-                <div class="log-item ${d.css}">
-                    <div class="log-desc">${d.icon} ${d.msg}</div>
-                    <div class="log-time">${time}</div>
-                </div>`;
+        const LOG_PREVIEW = 5;
+        const logExpanded = {};
+        let logSignature = '';
+        let logNewestSeen = null;
+
+        function toggleLogBox(bucket) { logExpanded[bucket] = !logExpanded[bucket]; renderHistory(true); }
+
+        function renderHistory(force = false) {
+            const container = document.getElementById('history-list');
+            const sig = currentLang + '|' + activityHistory.length + '|' + (activityHistory[0] ? activityHistory[0].ts : 0);
+            if (!force && sig === logSignature) return;
+            logSignature = sig;
+            const T = dict[currentLang];
+            const newestBefore = logNewestSeen;
+            logNewestSeen = activityHistory.length ? Math.max(...activityHistory.map(a => a.ts)) : newestBefore;
+
+            const buckets = tablesArray.map(c => ({ key: c.type, title: `${TYPE_ICONS[c.type] || ''} ${T['sec_' + c.type] || c.type}` }));
+            buckets.push({ key: 'general', title: `❄️ ${T.log_general}` });
+            const bucketOf = (a) => (a.action === 'FREEZE' || a.action === 'RESUME_FROZEN') ? 'general' : a.type;
+
+            container.innerHTML = buckets.map(b => {
+                const all = activityHistory.filter(a => bucketOf(a) === b.key);
+                const shown = logExpanded[b.key] ? all : all.slice(0, LOG_PREVIEW);
+                const rows = shown.map(log => {
+                    const d = describeLog(log);
+                    const isNew = newestBefore !== null && log.ts > newestBefore;
+                    return `<div class="log-row ${d.css}${isNew ? ' log-new' : ''}"><span class="log-time">${fmtClock(log.ts)}</span><span>${d.icon} ${d.msg}</span></div>`;
+                }).join('') || `<div class="log-empty">${T.log_empty}</div>`;
+                const toggle = all.length > LOG_PREVIEW
+                    ? `<button class="log-toggle" onclick="toggleLogBox('${b.key}')">${logExpanded[b.key] ? T.log_less : T.log_more}</button>` : '';
+                return `<div class="log-box"><h3>${b.title}</h3>${rows}${toggle}</div>`;
             }).join('');
         }
 
