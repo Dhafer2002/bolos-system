@@ -60,6 +60,12 @@
         .btn-pause { background: #ffc107; color: #000; border: 1px solid #d39e00; }
         .btn-freeze { background: #17a2b8; border: 1px solid #138496; }
         .btn-custom { padding: 12px 4px; }
+        .card.customizing > .btn-row { display: none; }
+        .custom-total { font-size: 24px; color: var(--gold); font-family: monospace; font-weight: 900; margin-bottom: 12px; }
+        .custom-total.custom-note { font-size: 16px; font-family: 'Cairo', sans-serif; }
+        .btn-go { background: #28a745; border: 1px solid #1e7e34; }
+        .btn-soft { background: #333; border: 1px solid var(--gold); color: var(--white); }
+        body.viewer .custom-panel { display: none !important; }
 
         .settings-box { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 2px solid var(--blue); margin-bottom: 20px; max-width: 600px; backdrop-filter: blur(5px);}
         input, select { width: 100%; background: rgba(0,0,0,0.6); border: 2px solid var(--gold); color: white; padding: 12px; border-radius: 6px; box-sizing: border-box; margin-bottom: 15px; font-size: 18px; font-weight: 700; font-family: 'Cairo', sans-serif;}
@@ -336,8 +342,8 @@
                 sec_pool: 'بلياردو', sec_pingpong: 'تنس طاولة', sec_foosball: 'فرفيرة', sec_ps: 'بلايستيشن', sec_baloot: 'بلوت', sec_karaoke: 'كاريوكي',
                 btn_open: 'مفتوح', btn_stop: 'تصفير ⏹️', btn_pause: 'مؤقت ⏸️', btn_resume: 'استئناف ▶️', btn_freeze: 'تجميد ❄️',
                 btn_custom: 'مخصص',
-                prompt_custom: 'كم المدة؟\nاكتب بالدقائق (مثلاً 90) أو بالساعات (مثلاً 1:30)',
-                err_custom: 'المدة غير صحيحة. اكتب مثلاً 90 أو 1:30 (من دقيقة إلى 12 ساعة).',
+                btn_add30: '+30 دقيقة', btn_add60: '+1 ساعة', btn_clear: '↺ تصفير', btn_go: '▶ ابدأ', btn_extend: '➕ تمديد', btn_cancel: '✕ إلغاء',
+                custom_open_note: 'الطاولة على الوقت المفتوح — ما تحتاج تمديد', err_cannot_extend: 'ما يمكن تمديد هذه الطاولة.', err_too_long: 'أقصى وقت 12 ساعة.',
                 top_avail: '🟢 الشواغر:', opt_pool: 'بلياردو', opt_ping: 'تنس', opt_foos: 'فرفيرة', opt_ps: 'بلايستيشن', opt_baloot: 'بلوت', opt_kar: 'كاريوكي', opt_bowl: 'بولينج',
                 add_wait: 'إصدار تذكرة انتظار', btn_add: '➕ إصدار تذكرة', title_frozen: '❄️ الأرصدة المجمدة', title_wait_list: '⏳ التذاكر الحالية', no_frozen: 'لا توجد أرصدة مجمدة حالياً.',
                 stats_desc: 'هذه الإحصائيات تحسب عدد التذاكر وجلسات اللعب ووقت اللعب الإجمالي. يمكنك استخراج تقرير PDF رسمي لكل قسم.',
@@ -358,8 +364,8 @@
                 sec_pool: 'Pool', sec_pingpong: 'Ping Pong', sec_foosball: 'Foosball', sec_ps: 'PlayStation', sec_baloot: 'Baloot', sec_karaoke: 'Karaoke',
                 btn_open: 'Open', btn_stop: 'Reset ⏹️', btn_pause: 'Pause ⏸️', btn_resume: 'Resume ▶️', btn_freeze: 'Freeze ❄️',
                 btn_custom: 'Custom',
-                prompt_custom: 'How long?\nType minutes (e.g. 90) or hours:minutes (e.g. 1:30)',
-                err_custom: 'Invalid time. Type e.g. 90 or 1:30 (1 minute to 12 hours).',
+                btn_add30: '+30 min', btn_add60: '+1 hour', btn_clear: '↺ Clear', btn_go: '▶ Start', btn_extend: '➕ Extend', btn_cancel: '✕ Cancel',
+                custom_open_note: 'Open timer — no extension needed', err_cannot_extend: 'This table can’t be extended.', err_too_long: 'Maximum is 12 hours.',
                 top_avail: '🟢 Available:', opt_pool: 'Pool', opt_ping: 'PingPong', opt_foos: 'Foosball', opt_ps: 'PS', opt_baloot: 'Baloot', opt_kar: 'Karaoke', opt_bowl: 'Bowling',
                 add_wait: 'Issue Ticket', btn_add: '➕ Issue Ticket', title_frozen: '❄️ Frozen Timers', title_wait_list: '⏳ Current Tickets', no_frozen: 'No frozen timers.',
                 stats_desc: 'These statistics track tickets, sessions, and total playtime. Export a PDF report for each section.',
@@ -402,6 +408,11 @@
                 case 'PAUSE':  return { icon: '⏸️', css: 'log-pause', msg: ar ? `تم إيقاف ${table} مؤقتاً` : `Paused ${table}` };
                 case 'RESUME': return { icon: '▶️', css: 'log-start', msg: ar ? `تم استئناف اللعب على ${table}` : `Resumed ${table}` };
                 case 'FREEZE': return { icon: '❄️', css: 'log-pause', msg: ar ? `تم تجميد رصيد ${table}${who}` : `Froze balance on ${table}${who}` };
+                case 'EXTEND': {
+                    const m = Number(log.minutes) || 0;
+                    const amount = m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}` : (ar ? `${m} دقيقة` : `${m} min`);
+                    return { icon: '➕', css: 'log-start', msg: ar ? `تم تمديد ${table} بـ ${amount}` : `Extended ${table} by ${amount}` };
+                }
                 case 'RESUME_FROZEN': return { icon: '▶️', css: 'log-start', msg: ar ? `تم استرجاع رصيد مجمد على ${table}${who}` : `Resumed frozen balance on ${table}${who}` };
                 default: return { icon: '•', css: '', msg: `${log.action} ${table}` };
             }
@@ -634,6 +645,7 @@
                         btn.style.color = paused ? 'white' : '#000';
                     }
                     if (card) card.classList.toggle('card-solid-orange', t.status === 'paused');
+                    updateCustomPanel(cat.type, i);
                 }
             });
         }
@@ -650,26 +662,86 @@
             if (sysStats[type]) { sysStats[type].sessions++; saveStats(); } // مؤقت لين مرحلة التقارير
         }
 
-        // 90 = minutes, 1:30 = hours:minutes, 1.5 = hours. Accepts Arabic digits too.
-        function parseDuration(input) {
-            let s = String(input || '').trim()
-                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-                .replace(/[٫,]/g, '.').replace(/[：؛]/g, ':').replace(/\s+/g, '');
-            let mins = NaN, m;
-            if ((m = s.match(/^(\d{1,2}):(\d{1,2})$/))) mins = Number(m[1]) * 60 + Number(m[2]);
-            else if (/^\d+$/.test(s)) mins = Number(s);
-            else if (/^\d*\.\d+$/.test(s)) mins = Math.round(Number(s) * 60);
-            return Number.isInteger(mins) && mins >= 1 && mins <= 720 ? mins : null;
-        }
+        const MAX_CUSTOM_MINUTES = 720;
+        const customDraft = {};
 
         function startCustom(type, num) {
             if (!requireStaff()) return;
-            const input = prompt(dict[currentLang].prompt_custom);
-            if (input === null) return;
-            const mins = parseDuration(input);
-            if (!mins) { alert(dict[currentLang].err_custom); return; }
-            start(mins, type, num);
+            const key = `${type}-${num}`;
+            const card = document.getElementById(`card-${key}`);
+            if (!card || card.querySelector('.custom-panel')) return;
+            customDraft[key] = 0;
+            const T = dict[currentLang];
+            const panel = document.createElement('div');
+            panel.className = 'custom-panel';
+            panel.innerHTML = `
+                <div class="custom-total" id="custom-total-${key}" dir="ltr"></div>
+                <div class="btn-row custom-add">
+                    <button class="btn btn-blue" onclick="customAdd('${type}', ${num}, 30)" data-tr="btn_add30">${T.btn_add30}</button>
+                    <button class="btn btn-blue" onclick="customAdd('${type}', ${num}, 60)" data-tr="btn_add60">${T.btn_add60}</button>
+                </div>
+                <div class="btn-row custom-add">
+                    <button class="btn btn-soft" onclick="customAdd('${type}', ${num}, 0)" data-tr="btn_clear">${T.btn_clear}</button>
+                    <button class="btn btn-go" id="custom-go-${key}" onclick="customGo('${type}', ${num})"></button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-soft" onclick="closeCustom('${type}', ${num})" data-tr="btn_cancel">${T.btn_cancel}</button>
+                </div>`;
+            card.appendChild(panel);
+            card.classList.add('customizing');
+            updateCustomPanel(type, num);
+        }
+
+        function closeCustom(type, num) {
+            const key = `${type}-${num}`;
+            const card = document.getElementById(`card-${key}`);
+            const panel = card && card.querySelector('.custom-panel');
+            if (panel) panel.remove();
+            if (card) card.classList.remove('customizing');
+            delete customDraft[key];
+        }
+
+        function customAdd(type, num, mins) {
+            const key = `${type}-${num}`;
+            if (mins === 0) { customDraft[key] = 0; updateCustomPanel(type, num); return; }
+            const t = getT(type, num);
+            const already = t.status !== 'idle' && t.mode === 'timed' ? Math.ceil(t.seconds / 60) : 0;
+            const next = (customDraft[key] || 0) + mins;
+            if (already + next > MAX_CUSTOM_MINUTES) { alert(dict[currentLang].err_too_long); return; }
+            customDraft[key] = next;
+            updateCustomPanel(type, num);
+        }
+
+        function customGo(type, num) {
+            const key = `${type}-${num}`;
+            const add = customDraft[key] || 0;
+            if (!add) return;
+            const t = getT(type, num);
+            if (t.status === 'idle') start(add, type, num);
+            else if (t.mode === 'timed') sendAction('extendTable', { type, number: num, minutes: add });
+            closeCustom(type, num);
+        }
+
+        function updateCustomPanel(type, num) {
+            const key = `${type}-${num}`;
+            const totalEl = document.getElementById(`custom-total-${key}`);
+            if (!totalEl) return;
+            const card = document.getElementById(`card-${key}`);
+            const go = document.getElementById(`custom-go-${key}`);
+            const T = dict[currentLang];
+            const t = getT(type, num);
+            const add = customDraft[key] || 0;
+            const openTimer = t.status !== 'idle' && t.mode === 'open';
+            const extending = t.status !== 'idle' && t.mode === 'timed';
+            card.querySelectorAll('.custom-add').forEach(r => { r.style.display = openTimer ? 'none' : ''; });
+            totalEl.classList.toggle('custom-note', openTimer);
+            if (openTimer) { totalEl.innerText = T.custom_open_note; return; }
+            totalEl.innerText = extending
+                ? `${formatTime(t.seconds)}  ➜  ${formatTime(t.seconds + add * 60)}`
+                : `⏱️ ${formatTime(add * 60)}`;
+            go.innerText = extending ? T.btn_extend : T.btn_go;
+            go.disabled = add === 0;
+            go.style.opacity = add === 0 ? 0.5 : 1;
         }
 
         function stop(type, num) {

@@ -335,6 +335,23 @@ const actions = {
         addEvent(state, 'STOP', type, number);
     },
 
+    // تمديد: يضيف وقت لطاولة شغالة أو موقفة مؤقتاً بدون ما يعيد الجلسة
+    extendTable(state, fx, now, data) {
+        const t = getTable(state, data);
+        if (!t) return { error: 'invalid' };
+        const mins = Number(data.minutes);
+        if (!Number.isInteger(mins) || mins < 1) return { error: 'invalid' };
+        if (t.mode !== 'timed' || (t.status !== 'running' && t.status !== 'paused')) return { error: 'cannot_extend' };
+        const remainingMs = t.status === 'running' ? t.endTime - now : t.remainingMs;
+        if (remainingMs <= 0) return { error: 'cannot_extend' };
+        if (remainingMs + mins * 60000 > MAX_DURATION_MINUTES * 60000) return { error: 'too_long' };
+        if (t.status === 'running') t.endTime += mins * 60000;
+        else t.remainingMs += mins * 60000;
+        t.bookedMinutes = (t.bookedMinutes || 0) + mins;
+        addActivity(state, 'EXTEND', t.type, t.number, { minutes: mins });
+        addEvent(state, 'EXTEND', t.type, t.number);
+    },
+
     // تجميد: يوقف الطاولة ويحفظ الوقت باسم الزبون
     freezeTable(state, fx, now, data) {
         const t = getTable(state, data);
