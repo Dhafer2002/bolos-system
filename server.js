@@ -51,7 +51,18 @@ const activityBucket = (a) => (a.action === 'FREEZE' || a.action === 'RESUME_FRO
 const EVENTS_LIMIT = 30;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // دخول الموظف يبقى 30 يوم
 
+// تقارير الإدارة
+const REPORT_MAX_DAYS = 93;
+// حدود تنبيهات "صحة الطاولات" — الطاولة تظهر بالتقرير لو وصلت الحد
+const HEALTH_THRESHOLDS = {
+    shortSessionSeconds: 5 * 60, // جلسة قصيرة = أقل من 5 دقائق وانتهت بتصفير
+    shortSessionsFlag: 3,        // عدد الجلسات القصيرة
+    movedAwayFlag: 3,            // عدد مرات نقل الزبائن من الطاولة
+    manualLightsFlag: 5,         // تشغيل + إطفاء اللمبة يدوياً
+};
+
 const store = require('./lib/store')({ dataDir: DATA_DIR });
+const reports = require('./lib/reports');
 
 // ---------------------------------------------------------------------------
 // الحالة
@@ -125,7 +136,7 @@ async function mutate(fn) {
     for (let attempt = 0; attempt < 6; attempt++) {
         const { data, version } = await store.read();
         const state = normalize(data);
-        const fx = { sessions: [], lights: [], archive: false };
+        const fx = { sessions: [], history: [], lights: [], archive: false };
         const now = Date.now();
         const settled = settleExpired(state, fx, now);
         const result = fn ? fn(state, fx, now) : undefined;
@@ -134,6 +145,7 @@ async function mutate(fn) {
 
         if (await store.write(state, version)) {
             await store.appendSessions(fx.sessions);
+            await store.appendHistory(fx.history);
             if (fx.archive) await store.archiveSessions();
             for (const l of fx.lights) waitUntil(runLights(l));
             return { state, result };
@@ -237,6 +249,11 @@ function addEvent(state, action, type, number, extra = {}) {
     if (state.events.length > EVENTS_LIMIT) state.events.length = EVENTS_LIMIT;
 }
 
+// سجل دائم للتقارير (تذاكر + لمبات يدوية) — بدون أسماء الزبائن
+function addHistory(fx, now, kind, game, number = null, data = {}) {
+    fx.history.push({ ts: new Date(now).toISOString(), kind, game, number, data });
+}
+
 function beginSession(t, { mode, durationMs = 0, elapsedMs = 0, source = 'new', bookedMinutes = null }, now) {
     Object.assign(t, {
         status: 'running', mode,
@@ -244,7 +261,7 @@ function beginSession(t, { mode, durationMs = 0, elapsedMs = 0, source = 'new', 
         startTime: mode === 'open' ? now - elapsedMs : null,
         remainingMs: null, elapsedMs: null,
         sessionStart: now, pausedMs: 0, pausedAt: null,
-        source, bookedMinutes,
+        source, bookedMinutes, extendedMinutes: 0,
     });
 }
 
@@ -257,6 +274,7 @@ function finishSession(state, fx, t, reason, endAt) {
         mode: t.mode,
         source: t.source || 'new',
         bookedMinutes: t.bookedMinutes ?? null,
+        extendedMinutes: t.extendedMinutes || 0,
         start: new Date(t.sessionStart).toISOString(),
         end: new Date(endAt).toISOString(),
         playedSeconds: Math.max(0, Math.round((endAt - t.sessionStart - pausedMs) / 1000)),
@@ -364,6 +382,7 @@ const actions = {
         if (t.status === 'running') t.endTime += mins * 60000;
         else t.remainingMs += mins * 60000;
         t.bookedMinutes = (t.bookedMinutes || 0) + mins;
+        t.extendedMinutes = (t.extendedMinutes || 0) + mins;
         addActivity(state, 'EXTEND', t.type, t.number, { minutes: mins });
         addEvent(state, 'EXTEND', t.type, t.number);
     },
@@ -404,6 +423,7 @@ const actions = {
         queueLights(state, fx, t.type, t.number, data.on ? 'ON' : 'OFF');
         addActivity(state, action, t.type, t.number);
         addEvent(state, action, t.type, t.number);
+        addHistory(fx, now, action, t.type, t.number);
     },
 
     // تجميد: يوقف الطاولة ويحفظ الوقت باسم الزبون
@@ -458,13 +478,17 @@ const actions = {
         if (state.ticketDay !== day) { state.ticketDay = day; state.ticketCounters = {}; }
         const num = (state.ticketCounters[game] || 0) + 1;
         state.ticketCounters[game] = num;
-        state.waitlist.push({ id: state.nextTicketId++, game, name, players, num, createdAt: now });
+        const id = state.nextTicketId++;
+        state.waitlist.push({ id, game, name, players, num, createdAt: now });
+        addHistory(fx, now, 'TICKET_ADD', game, null, { ticketId: id });
     },
 
+    // reason: 'turn' = جاء دورهم، 'delete' = انحذفت (الزبون مشى)
     removeTicket(state, fx, now, data) {
         const idx = state.waitlist.findIndex(w => w.id === Number(data.id));
         if (idx === -1) return { unchanged: true };
-        state.waitlist.splice(idx, 1);
+        const [w] = state.waitlist.splice(idx, 1);
+        addHistory(fx, now, data.reason === 'turn' ? 'TICKET_TURN' : 'TICKET_REMOVE', w.game, null, { ticketId: w.id });
     },
 
     // مسح البيانات — كلمة مرور الإدارة تتفحص قبل ما نوصل هنا
@@ -553,6 +577,18 @@ app.post('/api/login', route(async (req, res) => {
     const result = await checkPin(req.ip || '', pin);
     if (result !== 'ok') return res.status(401).json({ error: result });
     res.json({ token: makeToken() });
+}));
+
+// تقارير الإدارة: ?from=YYYY-MM-DD&to=YYYY-MM-DD (يشمل الطرفين، أيام عمل بتوقيت السعودية)
+app.get('/api/reports', route(async (req, res) => {
+    if (!isStaff(req)) return res.status(401).json({ error: 'not_authorized' });
+    const range = reports.parseRange(String(req.query.from || ''), String(req.query.to || ''), REPORT_MAX_DAYS);
+    if (!range) return res.status(400).json({ error: 'bad_range' });
+    const [sessions, history] = await Promise.all([
+        store.readSessions(range.start, range.end),
+        store.readHistory(range.start, range.end),
+    ]);
+    res.json(reports.computeReport({ range, sessions, history, layout: TABLE_LAYOUT, thresholds: HEALTH_THRESHOLDS, now: Date.now() }));
 }));
 
 // كل أوامر التحكم تمر من هنا: الزوار مرفوضين

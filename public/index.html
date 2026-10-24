@@ -191,6 +191,72 @@
         .btn-pdf { background: #28a745; border: 1px solid #1e7e34; width: 100%; margin-top: 15px; padding: 12px; font-size: 18px; color: white; cursor: pointer; font-weight: bold; border-radius: 6px;}
         .btn-pdf:hover { filter: brightness(1.1); }
 
+        /* ===== تقارير الإدارة ===== */
+        .rep-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 15px; }
+        .rep-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .rep-chip { background: linear-gradient(180deg, #2b2b2b, #141414); border: 1px solid #555; color: var(--white); padding: 8px 18px; border-radius: 20px; font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 15px; cursor: pointer; }
+        .rep-chip.selected { background: var(--blue); border-color: var(--gold); color: #fff; box-shadow: 0 0 12px rgba(212,175,55,0.35); }
+        .rep-dates { display: none; gap: 8px; align-items: center; color: #aaa; font-weight: 900; }
+        .rep-dates.show { display: flex; }
+        .rep-dates input { width: auto; margin: 0; padding: 6px 10px; font-size: 15px; color-scheme: dark; }
+        .rep-pdf-btn { flex: 0 0 auto; width: auto; padding: 10px 22px; margin-inline-start: auto; }
+        .rep-pdf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .rep-status { min-height: 24px; color: gray; font-weight: 900; margin-bottom: 15px; }
+        .rep-status.error { color: var(--red); }
+        .rep-section { margin-bottom: 34px; }
+        .rep-section > h2 { color: var(--gold); font-size: 22px; font-weight: 900; border-bottom: 2px dashed #555; padding-bottom: 8px; margin: 0 0 16px; }
+        .rep-section h3 { color: var(--white); font-size: 17px; margin: 18px 0 10px; }
+        .rep-note { color: gray; font-size: 13px; margin-top: 10px; }
+        .rep-card { background: var(--card-bg); border: 2px solid var(--blue); border-radius: 12px; padding: 18px; backdrop-filter: blur(5px); }
+        .rep-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        @media (max-width: 1000px) { .rep-tiles { grid-template-columns: repeat(2, 1fr); } }
+        .rep-tile { text-align: center; }
+        .rep-val { font-size: 32px; font-weight: 900; color: var(--gold); line-height: 1.3; }
+        .rep-val.rep-val-sm { font-size: 18px; line-height: 1.7; }
+        .rep-lbl { color: #aaa; font-size: 15px; font-weight: 900; }
+        .rep-sub { color: var(--white); font-size: 14px; margin-top: 4px; }
+        .rep-games { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .rep-game-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 900; color: var(--white); margin-bottom: 12px; }
+        .rep-big { font-size: 30px; color: var(--gold); }
+        .rep-bar-row { display: grid; grid-template-columns: 100px 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: 900; color: var(--white); }
+        .rep-track { height: 12px; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; }
+        .rep-fill { height: 100%; background: var(--gold); border-radius: 6px; }
+        .rep-fill.low { background: #777; }
+        .rep-bar-val { color: #aaa; white-space: nowrap; }
+        .rep-heat { display: grid; gap: 3px; font-size: 12px; font-weight: 900; color: #aaa; }
+        .rep-heat .rep-hcell { height: 26px; border-radius: 4px; background: rgba(255,255,255,0.04); }
+        .rep-heat .rep-hlabel { display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+        .rep-heat .rep-hday { display: flex; align-items: center; color: var(--white); white-space: nowrap; }
+        .rep-rows { display: flex; flex-direction: column; gap: 8px; }
+        .rep-row { display: grid; grid-template-columns: 150px repeat(4, 1fr); gap: 10px; align-items: center; padding: 10px 14px; border-radius: 8px; background: rgba(0,0,0,0.25); border-inline-start: 4px solid var(--blue); font-size: 14px; font-weight: 900; color: var(--white); }
+        .rep-row .rep-row-name { font-size: 16px; }
+        .rep-row .rep-muted { color: #aaa; }
+        .rep-pattern { display: grid; grid-template-columns: 70px 1fr 110px; gap: 10px; align-items: center; margin-bottom: 8px; font-weight: 900; color: var(--white); }
+        .rep-inline-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; font-weight: 900; color: var(--white); }
+        .rep-inline-stats b { color: var(--gold); }
+        .rep-flag { padding: 10px 14px; border-radius: 8px; background: rgba(0,0,0,0.25); border-inline-start: 4px solid #ffc107; margin-bottom: 8px; font-weight: 900; color: var(--white); }
+        .rep-ok { color: #28a745; font-weight: 900; font-size: 17px; }
+        .rep-empty { color: gray; font-weight: 900; }
+        /* نسخة الطباعة (PDF): خلفية بيضاء ونص غامق وعناوين ذهبية */
+        /* الغلاف ثابت على الشاشة، والتقرير نفسه عادي — html2pdf ينسخ التقرير، ولو كان fixed يطلع ارتفاعه صفر والـ PDF فاضي */
+        .rep-print-wrap { position: fixed; top: 0; left: 0; width: 794px; max-height: 100vh; overflow: auto; z-index: 9999; background: #ffffff; }
+        .rep-print { width: 794px; box-sizing: border-box; padding: 32px; background: #ffffff; color: #111111; font-family: 'Cairo', sans-serif;
+            --white: #111111; --card-bg: #ffffff; --gold: #a8841a; --blue: #c9d3e0; }
+        .rep-print .rep-card { backdrop-filter: none; border-width: 1px; }
+        .rep-print .rep-section > h2 { border-bottom-color: #cccccc; }
+        .rep-print .rep-lbl, .rep-print .rep-bar-val, .rep-print .rep-row .rep-muted, .rep-print .rep-note, .rep-print .rep-heat { color: #555555; }
+        .rep-print .rep-track { background: #eeeeee; }
+        .rep-print .rep-fill.low { background: #bbbbbb; }
+        .rep-print .rep-row, .rep-print .rep-flag { background: #f6f6f6; }
+        .rep-print .rep-heat .rep-hcell { background: #f2f2f2; }
+        .rep-print .rep-games { grid-template-columns: 1fr 1fr; }
+        .rep-print-head { text-align: center; border-bottom: 3px solid #003366; padding-bottom: 16px; margin-bottom: 24px; }
+        .rep-print-logo { color: #d4af37; font-size: 38px; font-weight: 900; letter-spacing: 2px; }
+        .rep-print-title { color: #003366; font-size: 24px; font-weight: 900; }
+        .rep-print-range { color: #666666; font-size: 15px; font-weight: 900; }
+        .rep-avoid { break-inside: avoid; page-break-inside: avoid; }
+        .rep-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.88); display: flex; align-items: center; direction: ltr; justify-content: flex-end; padding-right: 40px; color: var(--gold); font-size: 26px; font-weight: 900; }
+
         /* وضع الزائر: نفس الشكل بالضبط، بس بدون أزرار تحكم */
         body.viewer .btn-row, body.viewer .staff-only { display: none !important; }
         body.viewer .card:hover { transform: none; }
@@ -404,8 +470,17 @@
             <!-- 4. التقارير -->
             <div id="analytics" class="page">
                 <h1 data-tr="title_stats">تقارير الإدارة</h1>
-                <p style="color: gray; margin-bottom: 25px;" data-tr="stats_desc">هذه الإحصائيات تحسب عدد التذاكر وجلسات اللعب ووقت اللعب الإجمالي. يمكنك استخراج تقرير PDF رسمي لكل قسم.</p>
-                <div class="grid" id="analytics-grid"></div>
+                <p style="color: gray; margin-bottom: 25px;" data-tr="stats_desc">كل الأرقام محسوبة في السيرفر من سجل الجلسات. يوم العمل يبدأ 6 الصبح بتوقيت السعودية.</p>
+                <div class="rep-bar">
+                    <div class="rep-chips" id="rep-chips"></div>
+                    <div class="rep-dates" id="rep-dates">
+                        <span data-tr="rep_from">من</span><input type="date" id="rep-from" onchange="loadReports()">
+                        <span data-tr="rep_to">إلى</span><input type="date" id="rep-to" onchange="loadReports()">
+                    </div>
+                    <button class="btn btn-gold rep-pdf-btn" id="rep-pdf" onclick="downloadReportPdf()" data-tr="rep_pdf">📄 تحميل PDF</button>
+                </div>
+                <div class="rep-status" id="rep-status"></div>
+                <div id="rep-body"></div>
             </div>
 
             <!-- 5. الإعدادات -->
@@ -476,7 +551,16 @@
                 custom_open_note: 'الطاولة على الوقت المفتوح — ما تحتاج تمديد', err_cannot_extend: 'ما يمكن تمديد هذه الطاولة.', err_too_long: 'أقصى وقت 12 ساعة.',
                 top_avail: '🟢 الشواغر:', opt_pool: 'بلياردو', opt_ping: 'تنس', opt_foos: 'فرفيرة', opt_ps: 'بلايستيشن', opt_baloot: 'بلوت', opt_kar: 'كاريوكي', opt_bowl: 'بولينج',
                 add_wait: 'إصدار تذكرة انتظار', btn_add: '➕ إصدار تذكرة', title_frozen: '❄️ الأرصدة المجمدة', title_wait_list: '⏳ التذاكر الحالية', no_frozen: 'لا توجد أرصدة مجمدة حالياً.',
-                stats_desc: 'هذه الإحصائيات تحسب عدد التذاكر وجلسات اللعب ووقت اللعب الإجمالي. يمكنك استخراج تقرير PDF رسمي لكل قسم.',
+                stats_desc: 'كل الأرقام محسوبة في السيرفر من سجل الجلسات. يوم العمل يبدأ 6 الصبح بتوقيت السعودية.',
+                rep_today: 'اليوم', rep_yesterday: 'أمس', rep_week: 'هذا الأسبوع', rep_month: 'هذا الشهر', rep_custom: 'مخصص', rep_from: 'من', rep_to: 'إلى',
+                rep_pdf: '📄 تحميل PDF', rep_loading: 'جاري التحميل...', rep_error: 'تعذّر تحميل التقرير. تأكد من الاتصال وحاول مرة ثانية.', rep_err_range: 'نطاق التاريخ غير صحيح (أقصى مدة 93 يوم، و"من" قبل "إلى").',
+                rep_overview: 'نظرة عامة', rep_sessions: 'الجلسات', rep_played: 'ساعات اللعب', rep_peak: 'أعلى ضغط', rep_opening: 'ساعات التشغيل', rep_first: 'أول جلسة', rep_last: 'آخر جلسة',
+                rep_table_n: 'طاولة', rep_usage: 'الاستخدام', rep_heatmap: 'أوقات الضغط (متوسط الطاولات المشغولة)', rep_customers: 'الزبائن والانتظار', rep_tickets: 'تذاكر', rep_avg_wait: 'متوسط الانتظار',
+                rep_left: 'زبائن مشوا', rep_full_wait: 'ممتلئ وفيه انتظار', rep_sessions_sec: 'الجلسات', rep_open: 'مفتوح', rep_custom_b: 'مخصص', rep_avg_session: 'متوسط الجلسة', rep_extend: 'تمديد',
+                rep_moves: 'نقل', rep_freezes: 'تجميد', rep_health: '⚠️ صحة الطاولات', rep_all_ok: '✅ كل الطاولات سليمة', rep_since: 'تُحسب من تاريخ تفعيل هذه الميزة',
+                rep_hours: 'ساعة', rep_min: 'د', rep_no_sessions: 'لا توجد جلسات في هذه الفترة.', rep_title_pdf: 'تقرير التشغيل', rep_preparing: 'جاري تجهيز التقرير...', rep_avg_tables: 'طاولة مشغولة بالمتوسط',
+                rep_flag_short: '{t}: {n} جلسات أقل من {m} دقائق', rep_flag_moved: '{t}: الزبائن انتقلوا منها {n} مرات', rep_flag_lights: '{t}: اللمبة تشغّلت يدوياً {n} مرات',
+                rep_days: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
                 set_color: '🎨 تخصيص الألوان', col_blue: 'لون الواجهة:', col_red: 'لون التنبيه:', col_gold: 'لون التمييز:',
                 btn_theme: 'تبديل المظهر', btn_reset: '⚠️ إعادة تعيين ومسح البيانات', owner: 'Developed & Owned by<br>Dhafer Mohammed',
                 prompt_name: 'أدخل اسم الزبون لحفظ الرصيد:', ph_name: 'اسم الزبون...',
@@ -503,7 +587,16 @@
                 custom_open_note: 'Open timer — no extension needed', err_cannot_extend: 'This table can’t be extended.', err_too_long: 'Maximum is 12 hours.',
                 top_avail: '🟢 Available:', opt_pool: 'Pool', opt_ping: 'PingPong', opt_foos: 'Foosball', opt_ps: 'PS', opt_baloot: 'Baloot', opt_kar: 'Karaoke', opt_bowl: 'Bowling',
                 add_wait: 'Issue Ticket', btn_add: '➕ Issue Ticket', title_frozen: '❄️ Frozen Timers', title_wait_list: '⏳ Current Tickets', no_frozen: 'No frozen timers.',
-                stats_desc: 'These statistics track tickets, sessions, and total playtime. Export a PDF report for each section.',
+                stats_desc: 'All numbers are calculated on the server from the session log. A business day starts at 6 AM Saudi time.',
+                rep_today: 'Today', rep_yesterday: 'Yesterday', rep_week: 'This week', rep_month: 'This month', rep_custom: 'Custom', rep_from: 'From', rep_to: 'To',
+                rep_pdf: '📄 Download PDF', rep_loading: 'Loading...', rep_error: 'Could not load the report. Check the connection and try again.', rep_err_range: 'Invalid date range (max 93 days, and "From" before "To").',
+                rep_overview: 'Overview', rep_sessions: 'Sessions', rep_played: 'Played hours', rep_peak: 'Peak load', rep_opening: 'Operating hours', rep_first: 'First session', rep_last: 'Last session',
+                rep_table_n: 'tables', rep_usage: 'Usage', rep_heatmap: 'Busy times (average tables in use)', rep_customers: 'Customers & waiting', rep_tickets: 'Tickets', rep_avg_wait: 'Avg wait',
+                rep_left: 'Walked away', rep_full_wait: 'Full with waiting', rep_sessions_sec: 'Sessions', rep_open: 'Open', rep_custom_b: 'Custom', rep_avg_session: 'Avg session', rep_extend: 'Extended',
+                rep_moves: 'moves', rep_freezes: 'freezes', rep_health: '⚠️ Table health', rep_all_ok: '✅ All tables look fine', rep_since: 'Counted from when this feature was enabled',
+                rep_hours: 'h', rep_min: 'min', rep_no_sessions: 'No sessions in this period.', rep_title_pdf: 'Operations Report', rep_preparing: 'Preparing the report...', rep_avg_tables: 'tables in use on average',
+                rep_flag_short: '{t}: {n} sessions shorter than {m} minutes', rep_flag_moved: '{t}: customers moved away {n} times', rep_flag_lights: '{t}: light switched manually {n} times',
+                rep_days: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
                 set_color: '🎨 Colors', col_blue: 'Main Color:', col_red: 'Danger Color:', col_gold: 'Accent Color:',
                 btn_theme: 'Toggle Theme', btn_reset: '⚠️ Master Reset', owner: 'Developed & Owned by<br>Dhafer Mohammed',
                 prompt_name: 'Enter customer name to save time:', ph_name: 'Customer Name...',
@@ -517,21 +610,6 @@
                 auth_wrong: 'Wrong PIN.', auth_locked: 'Too many wrong attempts. Wait 5 minutes.'
             }
         };
-
-        // حماية التخزين المحلي بـ Try-Catch عشان ما يعلق المتصفح
-        let sysStats;
-        try { sysStats = JSON.parse(localStorage.getItem('bolosStats')); } catch(e) {}
-        if (!sysStats || !sysStats['pool']) {
-            sysStats = {
-                'pool': { ar: 'البلياردو', en: 'Pool', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'pingpong': { ar: 'تنس الطاولة', en: 'Ping Pong', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'foosball': { ar: 'الفرفيرة', en: 'Foosball', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'ps': { ar: 'البلايستيشن', en: 'PlayStation', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'baloot': { ar: 'البلوت', en: 'Baloot', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'karaoke': { ar: 'الكاريوكي', en: 'Karaoke', tickets: 0, sessions: 0, playedMinutes: 0 },
-                'bowl': { ar: 'البولينج', en: 'Bowling', tickets: 0, sessions: 0, playedMinutes: 0 }
-            };
-        }
 
         // سجل النشاطات يجي من السيرفر (نفس السجل على كل الأجهزة)
         function describeLog(log) {
@@ -602,8 +680,6 @@
             { type: 'ps', count: 2 }, { type: 'baloot', count: 2 }, { type: 'karaoke', count: 1 }
         ];
 
-        function saveStats() { localStorage.setItem('bolosStats', JSON.stringify(sysStats)); renderAnalytics(); }
-
         function playCardAlert(type, num, action) {
             let card = document.getElementById(`card-${type}-${num}`);
             if (!card) return;
@@ -620,110 +696,240 @@
             else if (action === 'PAUSE') { card.classList.add('card-solid-orange'); }
         }
 
-        function renderAnalytics() {
-            let grid = document.getElementById('analytics-grid');
-            grid.innerHTML = "";
-            Object.keys(sysStats).forEach(key => {
-                let stat = sysStats[key];
-                let name = currentLang === 'ar' ? stat.ar : stat.en;
-                let lblTick = currentLang === 'ar' ? 'تذاكر' : 'Tickets';
-                let lblSess = currentLang === 'ar' ? 'جلسات' : 'Sessions';
-                let lblTime = currentLang === 'ar' ? 'وقت اللعب' : 'Play Time';
-                let btnText = currentLang === 'ar' ? '📄 تحميل تقرير PDF' : '📄 Download PDF';
-                
-                let totalMins = stat.playedMinutes || 0;
-                let hours = Math.floor(totalMins / 60);
-                let mins = Math.floor(totalMins % 60);
-                let timeFormatted = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-                
-                grid.innerHTML += `
-                <div class="card" style="border-color: var(--gold);">
-                    <h3 style="color: var(--white); margin-bottom: 15px;">${name}</h3>
-                    <div style="display:flex; justify-content:space-between; margin-top:10px; border-bottom:1px dashed #555; padding-bottom:15px;">
-                        <div style="flex:1;"><div class="stat-val" style="color:var(--gold); font-size:28px;">${stat.tickets}</div><div class="stat-label">${lblTick}</div></div>
-                        <div style="flex:1;"><div class="stat-val" style="color:var(--blue); font-size:28px;">${stat.sessions}</div><div class="stat-label">${lblSess}</div></div>
-                        <div style="flex:1;"><div class="stat-val" style="color:#28a745; font-size:28px;">${timeFormatted}</div><div class="stat-label">${lblTime}</div></div>
-                    </div>
-                    <button class="btn btn-pdf" onclick="generatePDF('${key}', '${name}')">${btnText}</button>
-                </div>`;
-            });
+        // ====================== تقارير الإدارة ======================
+        // كل الأرقام تجي محسوبة من /api/reports — الصفحة بس تعرضها
+        const HOUR_MS = 3600 * 1000;
+        let repRange = 'today';
+        let repData = null;
+        let repLoading = false, repError = '';
+        let repReq = 0;
+
+        // يوم العمل بتوقيت السعودية (يبدأ 6 الصبح)
+        const repBusinessDay = (ms) => new Date(ms + 3 * HOUR_MS - 6 * HOUR_MS).toISOString().slice(0, 10);
+        const repAddDays = (day, n) => new Date(Date.parse(day + 'T00:00:00Z') + n * 24 * HOUR_MS).toISOString().slice(0, 10);
+
+        function reportRange() {
+            const today = repBusinessDay(Date.now());
+            if (repRange === 'yesterday') { const y = repAddDays(today, -1); return { from: y, to: y }; }
+            if (repRange === 'week') {   // الأسبوع يبدأ السبت
+                const sinceSat = (new Date(today + 'T00:00:00Z').getUTCDay() + 1) % 7;
+                return { from: repAddDays(today, -sinceSat), to: today };
+            }
+            if (repRange === 'month') return { from: today.slice(0, 8) + '01', to: today };
+            if (repRange === 'custom') return { from: document.getElementById('rep-from').value, to: document.getElementById('rep-to').value };
+            return { from: today, to: today };
         }
 
-        // ملاحظة: هذا العداد مؤقت لين نبني التقارير من سجل السيرفر في المرحلة الجاية
-        setInterval(() => {
+        function renderRepBar() {
+            const T = dict[currentLang];
+            document.getElementById('rep-chips').innerHTML = ['today', 'yesterday', 'week', 'month', 'custom'].map(k =>
+                `<button class="rep-chip${repRange === k ? ' selected' : ''}" onclick="setRepRange('${k}')">${T['rep_' + k]}</button>`).join('');
+            document.getElementById('rep-dates').classList.toggle('show', repRange === 'custom');
+            document.getElementById('rep-pdf').disabled = !repData || repLoading;
+        }
+
+        function setRepRange(r) {
+            repRange = r;
+            if (r === 'custom') {
+                const today = repBusinessDay(Date.now());
+                const from = document.getElementById('rep-from'), to = document.getElementById('rep-to');
+                if (!from.value) from.value = today;
+                if (!to.value) to.value = today;
+            }
+            renderRepBar();
+            loadReports();
+        }
+
+        async function loadReports() {
             if (myRole !== 'staff') return;
-            let updated = false;
-            tablesArray.forEach(cat => {
-                for(let i=1; i<=cat.count; i++) {
-                    if (getT(cat.type, i).status === 'running') {
-                        sysStats[cat.type].playedMinutes = (sysStats[cat.type].playedMinutes || 0) + 1;
-                        updated = true;
-                    }
+            const T = dict[currentLang];
+            const { from, to } = reportRange();
+            const seq = ++repReq;
+            if (!from || !to || from > to) {
+                repData = null; repLoading = false; repError = T.rep_err_range; renderReports(); return;
+            }
+            repLoading = true; repError = ''; renderReports();
+            let data = null, error = '';
+            try {
+                const res = await fetch(`/api/reports?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { headers: authHeaders(), cache: 'no-store' });
+                const body = await res.json().catch(() => ({}));
+                if (res.ok) data = body;
+                else error = body.error === 'bad_range' ? T.rep_err_range : res.status === 401 ? T.err_not_authorized : T.rep_error;
+            } catch (e) { error = T.rep_error; }
+            if (seq !== repReq) return;  // فيه طلب أحدث
+            repData = data; repError = error; repLoading = false;
+            renderReports();
+        }
+
+        // ---- تنسيق ----
+        const repNum = (h) => h >= 10 ? Math.round(h) : Math.round(h * 10) / 10;
+        const repFmt = (s, vars) => s.replace(/\{(\w)\}/g, (_, k) => vars[k]);
+        function repMinOfDay(m) {
+            const h = Math.floor(m / 60), mm = m % 60;
+            return `${h % 12 || 12}:${String(mm).padStart(2, '0')} ${h < 12 ? dict[currentLang].am : dict[currentLang].pm}`;
+        }
+        const repHourLabel = (h) => `${h % 12 || 12}${h < 12 ? dict[currentLang].am : dict[currentLang].pm}`;
+        const repWeekday = (ms) => dict[currentLang].rep_days[(new Date(ms + 3 * HOUR_MS).getUTCDay() + 1) % 7];
+        const repGameName = (g) => `${(WAIT_GAMES_UI.find(x => x.key === g) || {}).icon || ''} ${escapeHtml(gameLabel(g))}`;
+        const repTableName = (g, n) => `${escapeHtml(dict[currentLang]['sec_' + g] || g)} ${n}`;
+        const repRangeText = (r) => escapeHtml(r.from === r.to ? r.from : `${r.from}  ←  ${r.to}`);
+
+        function repSection(title, body, note = '') {
+            return `<div class="rep-section"><h2>${title}</h2>${body}${note ? `<div class="rep-note">${note}</div>` : ''}</div>`;
+        }
+
+        // يبني الأقسام الخمسة — نفس الدالة للصفحة وللـ PDF
+        function reportSectionsHtml(r) {
+            const T = dict[currentLang];
+            const games = tablesArray.map(c => c.type);
+
+            // 1) نظرة عامة
+            const peak = r.totals.peak, opening = r.totals.opening;
+            const tiles = [
+                `<div class="rep-val">${r.totals.sessions}</div><div class="rep-lbl">${T.rep_sessions}</div>`,
+                `<div class="rep-val">${repNum(r.totals.playedHours)}</div><div class="rep-lbl">${T.rep_played}</div>`,
+                peak ? `<div class="rep-val">${peak.count} <span style="font-size:18px">${T.rep_table_n}</span></div><div class="rep-lbl">${T.rep_peak}</div><div class="rep-sub">${repWeekday(peak.at)} ${fmtClock(peak.at)}</div>`
+                     : `<div class="rep-val">—</div><div class="rep-lbl">${T.rep_peak}</div>`,
+                opening ? `<div class="rep-val rep-val-sm">${T.rep_first} ${repMinOfDay(opening.firstStart)}<br>${T.rep_last} ${repMinOfDay(opening.lastEnd)}</div><div class="rep-lbl">${T.rep_opening}</div>`
+                        : `<div class="rep-val">—</div><div class="rep-lbl">${T.rep_opening}</div>`,
+            ];
+            let html = repSection(T.rep_overview, `<div class="rep-tiles rep-avoid">${tiles.map(t => `<div class="rep-card rep-tile">${t}</div>`).join('')}</div>`);
+
+            // 2) الاستخدام + خريطة الضغط
+            const usage = games.map(g => {
+                const u = r.usage[g];
+                const bars = u.tables.map(t => `
+                    <div class="rep-bar-row"><span>${repTableName(g, t.number)}</span>
+                        <div class="rep-track"><div class="rep-fill${t.pct < 35 ? ' low' : ''}" style="width:${Math.min(100, t.pct)}%"></div></div>
+                        <span class="rep-bar-val">${t.pct}% · ${repNum(t.hours)} ${T.rep_hours}</span></div>`).join('');
+                return `<div class="rep-card rep-avoid"><div class="rep-game-head"><span>${repGameName(g)}</span><span class="rep-big">${u.pct}%</span></div>${bars}</div>`;
+            }).join('');
+            const hm = r.heatmap;
+            let heat;
+            if (!hm.hours.length) heat = `<div class="rep-empty">${T.rep_no_sessions}</div>`;
+            else {
+                const max = Math.max(0.0001, ...hm.rows.flat().filter(v => v !== null));
+                const cells = [`<div></div>`, ...hm.hours.map(h => `<div class="rep-hlabel">${repHourLabel(h)}</div>`)];
+                hm.rows.forEach((row, wd) => {
+                    cells.push(`<div class="rep-hday">${T.rep_days[wd]}</div>`);
+                    hm.hours.forEach(h => {
+                        const v = row[h];
+                        const style = v === null ? '' : ` style="background: rgba(212,175,55,${(0.08 + 0.92 * v / max).toFixed(2)})"`;
+                        const tip = v === null ? '' : ` title="${T.rep_days[wd]} ${repHourLabel(h)}: ${v} ${T.rep_avg_tables}"`;
+                        cells.push(`<div class="rep-hcell"${style}${tip}></div>`);
+                    });
+                });
+                heat = `<div class="rep-card rep-avoid"><div class="rep-heat" style="grid-template-columns: 70px repeat(${hm.hours.length}, minmax(20px, 1fr))">${cells.join('')}</div></div>`;
+            }
+            html += repSection(T.rep_usage, `<div class="rep-games">${usage}</div><h3>${T.rep_heatmap}</h3>${heat}`);
+
+            // 3) الزبائن والانتظار
+            const rows = ['bowl', ...games].map(g => {
+                const c = r.customers[g];
+                const none = c.tickets === 0;
+                const v = (x, unit = '') => (none || x === null) ? '—' : `${x}${unit ? ' ' + unit : ''}`;
+                return `<div class="rep-row rep-avoid"><span class="rep-row-name">${repGameName(g)}</span>
+                    <span>🎟️ <span class="rep-muted">${T.rep_tickets}:</span> ${v(c.tickets)}</span>
+                    <span>⏱ <span class="rep-muted">${T.rep_avg_wait}:</span> ${v(c.avgWaitMin, T.rep_min)}</span>
+                    <span>🚶 <span class="rep-muted">${T.rep_left}:</span> ${v(c.lost)}</span>
+                    <span>${g === 'bowl' ? '' : `🔴 <span class="rep-muted">${T.rep_full_wait}:</span> ${v(c.fullWithWaitingHours === null ? null : repNum(c.fullWithWaitingHours), T.rep_hours)}`}</span></div>`;
+            }).join('');
+            html += repSection(T.rep_customers, `<div class="rep-rows">${rows}</div>`, T.rep_since);
+
+            // 4) الجلسات
+            const p = r.patterns;
+            const pRow = (label, n) => {
+                const pct = p.total ? Math.round(100 * n / p.total) : 0;
+                return `<div class="rep-pattern"><span>${label}</span><div class="rep-track"><div class="rep-fill" style="width:${pct}%"></div></div><span class="rep-bar-val">${n} · ${pct}%</span></div>`;
+            };
+            const perGame = games.map(g => `<div class="rep-row rep-avoid" style="grid-template-columns: 150px 1fr"><span class="rep-row-name">${repGameName(g)}</span>
+                <span>↔️ ${r.perGame[g].moves} ${T.rep_moves} · ❄️ ${r.perGame[g].freezes} ${T.rep_freezes}</span></div>`).join('');
+            html += repSection(T.rep_sessions_sec, `
+                <div class="rep-card rep-avoid">
+                    ${pRow(T.rep_open, p.open)}${pRow('30', p.m30)}${pRow('60', p.m60)}${pRow(T.rep_custom_b, p.custom)}
+                    <div class="rep-inline-stats">
+                        <span>${T.rep_avg_session}: <b>${p.avgSessionMin === null ? '—' : p.avgSessionMin + ' ' + T.rep_min}</b></span>
+                        <span>${T.rep_extend}: <b>${p.extendedPct === null ? '—' : p.extendedPct + '%'}</b></span>
+                    </div>
+                </div>
+                <div class="rep-rows" style="margin-top:12px">${perGame}</div>`);
+
+            // 5) صحة الطاولات
+            const flagText = { short: T.rep_flag_short, moved: T.rep_flag_moved, lights: T.rep_flag_lights };
+            const flags = r.health.length
+                ? r.health.map(f => `<div class="rep-flag rep-avoid">${repFmt(flagText[f.kind], { t: repTableName(f.type, f.number), n: f.count, m: r.thresholds.shortMinutes })}</div>`).join('')
+                : `<div class="rep-ok">${T.rep_all_ok}</div>`;
+            html += repSection(T.rep_health, flags, T.rep_since);
+            return html;
+        }
+
+        function renderReports() {
+            const T = dict[currentLang];
+            const status = document.getElementById('rep-status');
+            status.className = 'rep-status' + (repError ? ' error' : '');
+            status.innerText = repError || (repLoading ? T.rep_loading : '');
+            const body = document.getElementById('rep-body');
+            if (repError) body.innerHTML = '';
+            else if (repData) body.innerHTML = reportSectionsHtml(repData);
+            renderRepBar();
+        }
+
+        // html2canvas يضيّع المسافات بين الكلمات العربية ويلخبط ترتيب الأرقام جنب النص،
+        // فنحط كل كلمة بـ span لحالها: المتصفح يرتّبها صح، و html2canvas يرسم كل كلمة بمكانها
+        function wrapWordsForPdf(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            for (const node of nodes) {
+                const parts = node.nodeValue.split(/(\s+)/).filter(Boolean);
+                if (parts.length < 2) continue;
+                const frag = document.createDocumentFragment();
+                for (const part of parts) {
+                    if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); continue; }
+                    const span = document.createElement('span');
+                    span.textContent = part;
+                    frag.appendChild(span);
                 }
-            });
-            if(updated) saveStats();
-        }, 60000);
+                node.parentNode.replaceChild(frag, node);
+            }
+        }
 
-        function generatePDF(gameKey, gameName) {
-            let stat = sysStats[gameKey];
-            let date = new Date().toLocaleDateString('ar-SA');
-            let timeNow = new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'});
-            
-            let totalMins = stat.playedMinutes || 0;
-            let hours = Math.floor(totalMins / 60);
-            let mins = Math.floor(totalMins % 60);
-            let timeString = hours > 0 ? `${hours} ساعة و ${mins} دقيقة` : `${mins} دقيقة`;
-
-            let pdfContainer = document.createElement('div');
-            pdfContainer.style.padding = '40px';
-            pdfContainer.style.fontFamily = "'Cairo', sans-serif";
-            pdfContainer.style.direction = 'rtl';
-            pdfContainer.style.background = '#fff';
-            pdfContainer.style.color = '#000';
-            pdfContainer.style.width = '800px';
-            pdfContainer.style.position = 'absolute';
-            pdfContainer.style.left = '-9999px'; 
-            document.body.appendChild(pdfContainer);
-
-            pdfContainer.innerHTML = `
-                <div style="text-align: center; border-bottom: 3px solid #003366; padding-bottom: 20px; margin-bottom: 30px;">
-                    <h1 style="color: #d4af37; margin: 0; font-size: 40px;">BOLOS ALLEY</h1>
-                    <h2 style="color: #333; margin: 10px 0;">التقرير الإحصائي - قسم ${gameName}</h2>
-                    <p style="color: #777; font-size: 16px;">تاريخ استخراج التقرير: ${date} - ${timeNow}</p>
-                </div>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 50px; font-size: 20px;">
-                    <tr style="background: #003366; color: #fff;">
-                        <th style="padding: 15px; border: 1px solid #ddd; text-align: right;">البيان</th>
-                        <th style="padding: 15px; border: 1px solid #ddd; text-align: center;">العدد / القيمة</th>
-                    </tr>
-                    <tr>
-                        <td style="padding: 15px; border: 1px solid #ddd; font-weight: bold;">إجمالي جلسات اللعب (طاولات مشغلة)</td>
-                        <td style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #003366;">${stat.sessions} جلسة</td>
-                    </tr>
-                    <tr style="background: #f9f9f9;">
-                        <td style="padding: 15px; border: 1px solid #ddd; font-weight: bold;">إجمالي وقت اللعب الفعلي للقسم</td>
-                        <td style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #cc0000;">${timeString}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 15px; border: 1px solid #ddd; font-weight: bold;">إجمالي تذاكر قائمة الانتظار المُصدرة</td>
-                        <td style="padding: 15px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #d4af37;">${stat.tickets} تذكرة</td>
-                    </tr>
-                </table>
-                <div style="margin-top: 80px; display: flex; justify-content: space-between;">
-                    <div style="text-align: center;">
-                        <p style="font-weight: bold; margin-bottom: 50px; font-size:18px;">مدير الصالة</p>
-                        <p>____________________</p>
-                        <p style="color: #555;">Dhafer Mohammed</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <p style="font-weight: bold; margin-bottom: 50px; font-size:18px;">ختم الاعتماد</p>
-                        <p>____________________</p>
-                    </div>
-                </div>
-            `;
-            
-            let opt = { margin: 0.5, filename: `Report_${gameKey}_Bolos.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(pdfContainer).save().then(() => { document.body.removeChild(pdfContainer); });
+        // PDF: نبني تقرير أبيض بمقاس A4 فوق الشاشة (مو خارجها — html2canvas يصوّر اللي يشوفه بس)
+        async function downloadReportPdf() {
+            if (!repData || repLoading || typeof html2pdf === 'undefined') return;
+            const T = dict[currentLang];
+            const r = repData;
+            const overlay = document.createElement('div');
+            overlay.className = 'rep-overlay';
+            overlay.innerText = T.rep_preparing;
+            const wrap = document.createElement('div');
+            wrap.className = 'rep-print-wrap';
+            const el = document.createElement('div');
+            el.className = 'rep-print';
+            el.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            el.innerHTML = `<div class="rep-print-head"><div class="rep-print-logo">BOLOS ALLEY</div>
+                <div class="rep-print-title">${T.rep_title_pdf}</div><div class="rep-print-range">${repRangeText(r)}</div></div>` + reportSectionsHtml(r);
+            wrapWordsForPdf(el);
+            wrap.appendChild(el);
+            document.body.appendChild(overlay);
+            document.body.appendChild(wrap);
+            try {
+                await document.fonts.ready;
+                await html2pdf().set({
+                    margin: [8, 0, 8, 0],
+                    filename: `Bolos_Report_${r.from}_${r.to}.pdf`,
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'], avoid: '.rep-avoid' },
+                }).from(el).save();
+            } catch (e) {
+                console.error('[pdf]', e);
+                alert(T.rep_error);
+            } finally {
+                wrap.remove();
+                overlay.remove();
+            }
         }
 
         function updateAvailability() {
@@ -759,7 +965,7 @@
                 let key = el.getAttribute('data-tr-ph');
                 if(dict[currentLang][key]) el.setAttribute('placeholder', dict[currentLang][key]);
             });
-            renderAnalytics();
+            renderReports();
             renderHistory();
             renderTables();   // يرجّع نص زر الإيقاف/الاستئناف الصحيح بعد الترجمة
             renderFrozen(true);
@@ -776,6 +982,7 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             btn.classList.add('active');
+            if (pageId === 'analytics') loadReports();
         }
 
         // ====================== لوحة الطاولات ======================
@@ -824,7 +1031,6 @@
         function start(mins, type, num) {
             if (!requireStaff()) return;
             sendAction('startTable', { type, number: num, durationMinutes: mins });
-            if (sysStats[type]) { sysStats[type].sessions++; saveStats(); } // مؤقت لين مرحلة التقارير
         }
 
         const MAX_CUSTOM_MINUTES = 720;
@@ -1370,19 +1576,19 @@
         }
         function removeTicket(id, btn) {
             if (!requireStaff() || !confirm(dict[currentLang].confirm_remove)) return;
-            slideOut(btn, () => sendAction('removeTicket', { id }));
+            slideOut(btn, () => sendAction('removeTicket', { id, reason: 'delete' }));
         }
         function theirTurn(id, btn) {
             if (!requireStaff()) return;
             const w = waitList.find(x => x.id === id);
             const ticket = btn.closest('.wait-ticket');
-            if (!w || document.body.classList.contains('reduce-motion')) { sendAction('removeTicket', { id }); return; }
+            if (!w || document.body.classList.contains('reduce-motion')) { sendAction('removeTicket', { id, reason: 'turn' }); return; }
             ticket.style.transform = '';
             const icon = (WAIT_GAMES_UI.find(g => g.key === w.game) || {}).icon || '';
             ticket.insertAdjacentHTML('beforeend', w.game === 'bowl'
                 ? `<div class="strike-ball">${ballSvg()}</div><div class="strike-text" dir="ltr">${dict[currentLang].strike}</div>`
                 : `<div class="strike-text">${icon} ${dict[currentLang].go_text}</div>`);
-            setTimeout(() => slideOut(btn, () => sendAction('removeTicket', { id })), 1000);
+            setTimeout(() => slideOut(btn, () => sendAction('removeTicket', { id, reason: 'turn' })), 1000);
         }
         function addWait() {
             if (!requireStaff()) return;
@@ -1397,7 +1603,6 @@
                 return;
             }
             const players = game === 'bowl' ? selectedBowlingNum : null;
-            if (sysStats[game]) { sysStats[game].tickets++; saveStats(); }
             nameInput.value = '';
             const send = () => sendAction('addTicket', { game, name, players });
             if (game === 'bowl') playBowlingRoll(() => { send(); resetPins(); });
@@ -1412,7 +1617,7 @@
         }
 
         // تشغيل كل شيء بمجرد فتح الصفحة مباشرة
-        renderAnalytics();
+        renderReports();
         renderGameTiles();
         renderPins();
         initCardMenus();
