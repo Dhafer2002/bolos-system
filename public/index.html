@@ -728,7 +728,8 @@
 
         function setConnected(ok) { document.getElementById('conn-lost').style.display = ok ? 'none' : 'block'; }
 
-        function applyState(snap) {
+        function applyState(snap, tokenUsed = staffToken) {
+            if (tokenUsed !== staffToken) return; // رد قديم أُرسل قبل تسجيل الدخول/الخروج — نتجاهله
             // التوكن انتهى أو الرقم السري تغيّر — نرجع زائر
             if (staffToken && snap.role !== 'staff') setToken('');
             if (snap.role !== myRole) applyRole(snap.role);
@@ -760,18 +761,27 @@
         }
 
         let pollTimer = null;
+        let pollSeq = 0; // بس آخر طلب يُعتمد — الردود الأقدم تنرمى
         async function poll() {
             clearTimeout(pollTimer);
+            const seq = ++pollSeq;
+            const tokenUsed = staffToken;
             try {
                 const res = await fetch('/api/state', { headers: authHeaders(), cache: 'no-store' });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
-                applyState(await res.json());
+                const snap = await res.json();
+                if (seq !== pollSeq) return;
+                applyState(snap, tokenUsed);
                 setConnected(true);
-            } catch (e) { setConnected(false); }
+            } catch (e) {
+                if (seq !== pollSeq) return;
+                setConnected(false);
+            }
             pollTimer = setTimeout(poll, POLL_MS);
         }
 
         async function sendAction(action, data) {
+            const tokenUsed = staffToken;
             try {
                 const res = await fetch('/api/action', {
                     method: 'POST',
@@ -779,9 +789,9 @@
                     body: JSON.stringify({ action, ...data })
                 });
                 const body = await res.json().catch(() => ({}));
-                if (body.state) applyState(body.state);
+                if (body.state) applyState(body.state, tokenUsed);
                 if (!res.ok) {
-                    if (res.status === 401) { setToken(''); applyRole('viewer'); }
+                    if (res.status === 401 && tokenUsed === staffToken) { setToken(''); applyRole('viewer'); }
                     alert(dict[currentLang]['err_' + body.error] || body.error || dict[currentLang].err_server_error);
                 }
                 setConnected(true);
